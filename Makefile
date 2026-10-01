@@ -9,7 +9,9 @@ PIP ?= ./.venv/bin/pip
 SEED ?= 7
 
 .PHONY: help setup data analyze model reason report sample \
-        evaluate reference-eval ablation figures test all clean
+        evaluate reference-eval ablation figures baseline gate test all clean
+
+SAMPLE_ARGS = --name "Sample Web App" --code samples/py_webapp --diagram samples/diagrams/py_webapp.mmd
 
 help:
 	@echo "ThreatForge make targets:"
@@ -22,6 +24,8 @@ help:
 	@echo "  make evaluate        coverage/precision/noise on the synthetic catalog"
 	@echo "  make reference-eval  Tier-2: tool vs hand-authored reference model"
 	@echo "  make ablation        grounded vs ungrounded reasoner (headline result)"
+	@echo "  make baseline        record current threats as the accepted baseline"
+	@echo "  make gate            fail on new threats above the baseline (CI gating)"
 	@echo "  make figures         (re)generate every chart in figures/"
 	@echo "  make test            run the test suite"
 	@echo "  make all             data -> report -> evaluate -> ablation -> figures"
@@ -58,6 +62,14 @@ reference-eval:
 
 ablation:
 	$(PY) -m src.cli ablation --seed $(SEED)
+
+baseline:
+	$(PY) -m src.cli baseline $(SAMPLE_ARGS)
+
+gate:
+	$(PY) -m src.cli gate $(SAMPLE_ARGS) --fail-level $(FAIL_LEVEL)
+
+FAIL_LEVEL ?= High
 
 figures:
 	$(PY) -m src.cli figures

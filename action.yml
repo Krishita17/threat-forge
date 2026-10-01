@@ -1,0 +1,84 @@
+name: "ThreatForge"
+description: "Draft a STRIDE threat model from your code and/or an architecture diagram, and (optionally) gate CI on new threats."
+author: "Krishita Sanjay Choksi"
+branding:
+  icon: "shield"
+  color: "purple"
+inputs:
+  name:
+    description: "System name used in the report."
+    required: false
+    default: "${{ github.repository }}"
+  code:
+    description: "Path to the code to analyze (default: repo root)."
+    required: false
+    default: "."
+  diagram:
+    description: "Optional path to a Mermaid architecture diagram."
+    required: false
+    default: ""
+  lang:
+    description: "Force a code analyzer: python | javascript (default: auto-detect)."
+    required: false
+    default: ""
+  out:
+    description: "Output directory for the generated report + exports."
+    required: false
+    default: "threatforge-out"
+  gate:
+    description: "If true, fail the job on new threats not in the baseline."
+    required: false
+    default: "false"
+  fail-level:
+    description: "Minimum risk level that fails the gate (Low|Medium|High|Critical)."
+    required: false
+    default: "High"
+  baseline:
+    description: "Path to the accepted-threats baseline."
+    required: false
+    default: ".threatforge.baseline.json"
+outputs:
+  sarif:
+    description: "Path to the generated SARIF file."
+    value: ${{ steps.run.outputs.sarif }}
+  report:
+    description: "Path to the generated Markdown report."
+    value: ${{ steps.run.outputs.report }}
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+    - name: Install ThreatForge dependencies
+      shell: bash
+      run: pip install -r "${{ github.action_path }}/requirements.txt"
+    - name: Run ThreatForge
+      id: run
+      shell: bash
+      env:
+        PYTHONPATH: ${{ github.action_path }}
+      run: |
+        ARGS=(--name "${{ inputs.name }}" --out "${{ inputs.out }}" --slug threatforge)
+        [ -n "${{ inputs.code }}" ] && ARGS+=(--code "${{ inputs.code }}")
+        [ -n "${{ inputs.diagram }}" ] && ARGS+=(--diagram "${{ inputs.diagram }}")
+        [ -n "${{ inputs.lang }}" ] && ARGS+=(--lang "${{ inputs.lang }}")
+        python -m src.cli report "${ARGS[@]}"
+        echo "sarif=${{ inputs.out }}/threatforge.sarif" >> "$GITHUB_OUTPUT"
+        echo "report=${{ inputs.out }}/threatforge_threat_model.md" >> "$GITHUB_OUTPUT"
+        # Job summary: show the threat register in the PR/Actions UI.
+        cat "${{ inputs.out }}/threatforge_threat_model.md" >> "$GITHUB_STEP_SUMMARY" || true
+    - name: Gate on new threats
+      if: ${{ inputs.gate == 'true' }}
+      shell: bash
+      env:
+        PYTHONPATH: ${{ github.action_path }}
+      run: |
+        GARGS=(--name "${{ inputs.name }}" --fail-level "${{ inputs.fail-level }}" \
+               --file "${{ inputs.baseline }}" --out gate-report.md)
+        [ -n "${{ inputs.code }}" ] && GARGS+=(--code "${{ inputs.code }}")
+        [ -n "${{ inputs.diagram }}" ] && GARGS+=(--diagram "${{ inputs.diagram }}")
+        [ -n "${{ inputs.lang }}" ] && GARGS+=(--lang "${{ inputs.lang }}")
+        python -m src.cli gate "${GARGS[@]}"
+        cat gate-report.md >> "$GITHUB_STEP_SUMMARY" || true

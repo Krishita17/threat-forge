@@ -10,6 +10,9 @@ from __future__ import annotations
 
 from typing import Any
 
+import os
+
+from .analyze_code.js_analyzer import analyze_js_repo
 from .analyze_code.python_analyzer import analyze_python_repo
 from .analyze_diagram.mermaid import parse_mermaid_file
 from .mitigate.mapper import MitigationMapper
@@ -21,15 +24,38 @@ from .reason.threat import Threat
 from .stride.kb import StrideKB
 
 
+def detect_language(repo_path: str) -> str:
+    """Pick a code analyzer by inspecting the repo (python | javascript)."""
+    if os.path.exists(os.path.join(repo_path, "package.json")):
+        return "javascript"
+    py = js = 0
+    for root, dirs, files in os.walk(repo_path):
+        dirs[:] = [d for d in dirs if d not in {".venv", "venv", "node_modules", ".git"}]
+        for fn in files:
+            if fn.endswith(".py"):
+                py += 1
+            elif fn.endswith((".js", ".ts", ".jsx", ".tsx", ".mjs", ".cjs")):
+                js += 1
+    return "javascript" if js > py else "python"
+
+
+def analyze_code_repo(repo_path: str, name: str, language: str | None = None) -> SystemModel:
+    language = language or detect_language(repo_path)
+    if language == "javascript":
+        return analyze_js_repo(repo_path, name=name)
+    return analyze_python_repo(repo_path, name=name)
+
+
 def analyze_inputs(
     name: str,
     repo_path: str | None = None,
     diagram_path: str | None = None,
+    language: str | None = None,
 ) -> SystemModel:
     """Analyze code and/or a diagram and fuse into one system model."""
     fragments: list[SystemModel] = []
     if repo_path:
-        fragments.append(analyze_python_repo(repo_path, name=name))
+        fragments.append(analyze_code_repo(repo_path, name, language=language))
     if diagram_path:
         fragments.append(parse_mermaid_file(diagram_path, name=name))
     if not fragments:
@@ -58,10 +84,12 @@ def run_pipeline(
     diagram_path: str | None = None,
     kb: StrideKB | None = None,
     backend_config: dict[str, Any] | None = None,
+    language: str | None = None,
 ) -> tuple[SystemModel, list[Threat]]:
     """Full pipeline from inputs to a scored threat register."""
     kb = kb or StrideKB.load()
-    model = analyze_inputs(name, repo_path=repo_path, diagram_path=diagram_path)
+    model = analyze_inputs(name, repo_path=repo_path, diagram_path=diagram_path,
+                           language=language)
     threats = reason_over_model(model, kb=kb, backend_config=backend_config)
     threats = map_and_score(threats)
     return model, threats

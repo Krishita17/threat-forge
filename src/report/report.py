@@ -16,6 +16,7 @@ from ..model.schema import ElementType, SystemModel
 from ..reason.threat import Threat
 from . import exports
 from .dfd_render import render_svg_file
+from .html_report import render_html_file
 
 _STRIDE_ORDER = ["S", "T", "R", "I", "D", "E"]
 _STRIDE_FULL = {
@@ -122,17 +123,22 @@ def generate_report(
     lines.append("## Mitigations and Mapped Controls")
     lines.append("")
     mit_rows = []
-    for row in mapper.mitigation_table(threats):
+    for t in threats:
+        control_titles = []
+        for cid in t.controls:
+            c = mapper.control_detail(cid)
+            control_titles.append(f"{cid} ({c.title})" if c else cid)
         mit_rows.append([
-            row["threat_id"],
-            row["threat"],
-            ", ".join(row["controls"]) or "-",
-            row["cwe"] or "-",
-            row["mitigation"],
-            row["priority"],
+            t.id,
+            t.title,
+            ", ".join(control_titles) or "-",
+            t.cwe or "-",
+            t.owasp_top10 or "-",
+            t.mitigation,
+            t.risk_level,
         ])
     lines.append(_md_table(
-        ["ID", "Threat", "Mapped controls", "CWE", "Recommended fix", "Priority"],
+        ["ID", "Threat", "Mapped controls", "CWE", "OWASP Top 10", "Recommended fix", "Priority"],
         mit_rows,
     ))
     lines.append("")
@@ -176,5 +182,29 @@ def generate_report(
     with open(td_path, "w", encoding="utf-8") as fh:
         fh.write(exports.to_threat_dragon(model, threats))
     paths["threat_dragon"] = td_path
+
+    # SARIF for GitHub code-scanning / Security tab.
+    sarif_path = os.path.join(out_dir, f"{slug}.sarif")
+    with open(sarif_path, "w", encoding="utf-8") as fh:
+        fh.write(exports.to_sarif(model, threats,
+                                  anchor_file=os.path.basename(md_path)))
+    paths["sarif"] = sarif_path
+
+    # GitHub-native Mermaid DFD (embeddable in Markdown).
+    mmd_path = os.path.join(out_dir, f"{slug}_dfd.mmd")
+    with open(mmd_path, "w", encoding="utf-8") as fh:
+        fh.write(exports.to_mermaid_dfd(model))
+    paths["mermaid"] = mmd_path
+
+    # Interactive, self-contained HTML report.
+    html_path = os.path.join(out_dir, f"{slug}_threat_model.html")
+    render_html_file(model, threats, html_path)
+    paths["html"] = html_path
+
+    # shields.io badge endpoint.
+    badge_path = os.path.join(out_dir, f"{slug}_badge.json")
+    with open(badge_path, "w", encoding="utf-8") as fh:
+        fh.write(exports.to_shields_badge(threats))
+    paths["badge"] = badge_path
 
     return paths

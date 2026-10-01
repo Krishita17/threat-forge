@@ -65,7 +65,7 @@ def cmd_data(args):
 
 
 def cmd_analyze(args):
-    model = analyze_inputs(args.name, repo_path=args.code, diagram_path=args.diagram)
+    model = analyze_inputs(args.name, repo_path=args.code, diagram_path=args.diagram, language=args.lang)
     text = model.to_json()
     if args.out:
         with open(args.out, "w", encoding="utf-8") as fh:
@@ -76,7 +76,7 @@ def cmd_analyze(args):
 
 
 def cmd_model(args):
-    model = analyze_inputs(args.name, repo_path=args.code, diagram_path=args.diagram)
+    model = analyze_inputs(args.name, repo_path=args.code, diagram_path=args.diagram, language=args.lang)
     print(f"System: {model.name}")
     print(f"  elements: {len([e for e in model.elements])}")
     print(f"  flows: {len(model.flows)}")
@@ -87,7 +87,7 @@ def cmd_model(args):
 
 def cmd_reason(args):
     cfg = load_config()
-    model = analyze_inputs(args.name, repo_path=args.code, diagram_path=args.diagram)
+    model = analyze_inputs(args.name, repo_path=args.code, diagram_path=args.diagram, language=args.lang)
     threats = run_on_model(model, backend_config=cfg["reasoner"])
     print(f"{len(threats)} threats identified:")
     for t in threats:
@@ -98,7 +98,7 @@ def cmd_report(args):
     cfg = load_config()
     model, threats = run_pipeline(
         args.name, repo_path=args.code, diagram_path=args.diagram,
-        backend_config=cfg["reasoner"],
+        backend_config=cfg["reasoner"], language=args.lang,
     )
     out_dir = args.out or _p("reports")
     paths = generate_report(model, threats, out_dir, slug=args.slug)
@@ -140,6 +140,55 @@ def cmd_reference_eval(args):
     run_reference_eval()
 
 
+def _default_baseline():
+    return _p(".threatforge.baseline.json")
+
+
+def cmd_baseline(args):
+    cfg = load_config()
+    _, threats = run_pipeline(args.name, repo_path=args.code, diagram_path=args.diagram,
+                              backend_config=cfg["reasoner"], language=args.lang)
+    from .report.diff import write_baseline  # noqa: E402
+    path = args.file or _default_baseline()
+    write_baseline(threats, path)
+    print(f"Wrote baseline of {len(threats)} accepted threats -> "
+          f"{os.path.relpath(path, ROOT)}")
+
+
+def cmd_gate(args):
+    cfg = load_config()
+    _, threats = run_pipeline(args.name, repo_path=args.code, diagram_path=args.diagram,
+                              backend_config=cfg["reasoner"], language=args.lang)
+    from .report.diff import gate, load_baseline  # noqa: E402
+    path = args.file or _default_baseline()
+    baseline = load_baseline(path) if os.path.exists(path) else set()
+    result = gate(threats, baseline, fail_level=args.fail_level)
+    print(result.to_markdown())
+    if args.out:
+        with open(args.out, "w", encoding="utf-8") as fh:
+            fh.write(result.to_markdown())
+    if not result.passed:
+        sys.exit(1)
+
+
+def cmd_diff(args):
+    cfg = load_config()
+    from .report.diff import diff_threats  # noqa: E402
+    from .reason.threat import Threat  # noqa: E402
+
+    with open(args.old, encoding="utf-8") as fh:
+        old_data = json.load(fh)
+    old_threats = [Threat.from_dict(t) for t in old_data.get("threats", old_data)]
+    _, new_threats = run_pipeline(args.name, repo_path=args.code,
+                                  diagram_path=args.diagram,
+                                  backend_config=cfg["reasoner"], language=args.lang)
+    result = diff_threats(old_threats, new_threats)
+    print(result.to_markdown())
+    if args.out:
+        with open(args.out, "w", encoding="utf-8") as fh:
+            fh.write(result.to_markdown())
+
+
 def cmd_figures(args):
     from .report.figures import generate_all_figures  # noqa: E402
     generate_all_figures()
@@ -149,6 +198,8 @@ def _add_input_args(sp, require=False):
     sp.add_argument("--name", default="System", help="system name")
     sp.add_argument("--code", help="path to a code repository to analyze")
     sp.add_argument("--diagram", help="path to a Mermaid diagram to analyze")
+    sp.add_argument("--lang", choices=["python", "javascript"],
+                    help="force a code analyzer (default: auto-detect)")
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -191,6 +242,27 @@ def build_parser() -> argparse.ArgumentParser:
 
     sp = sub.add_parser("reference-eval", help="Tier-2: tool vs hand-authored reference")
     sp.set_defaults(func=cmd_reference_eval)
+
+    sp = sub.add_parser("baseline", help="record current threats as an accepted baseline")
+    _add_input_args(sp)
+    sp.add_argument("--file", help="baseline path (default: .threatforge.baseline.json)")
+    sp.set_defaults(func=cmd_baseline)
+
+    sp = sub.add_parser("gate", help="fail (exit 1) on new threats not in the baseline")
+    _add_input_args(sp)
+    sp.add_argument("--file", help="baseline path (default: .threatforge.baseline.json)")
+    sp.add_argument("--fail-level", default="High",
+                    choices=["Low", "Medium", "High", "Critical"],
+                    help="minimum risk level that fails the gate (default: High)")
+    sp.add_argument("--out", help="also write the gate report (markdown) here")
+    sp.set_defaults(func=cmd_gate)
+
+    sp = sub.add_parser("diff", help="diff current threats against a previous model JSON")
+    _add_input_args(sp)
+    sp.add_argument("--old", required=True,
+                    help="path to a previous *.threatforge.json export")
+    sp.add_argument("--out", help="also write the diff report (markdown) here")
+    sp.set_defaults(func=cmd_diff)
 
     sp = sub.add_parser("figures", help="regenerate all charts + sample example")
     sp.set_defaults(func=cmd_figures)

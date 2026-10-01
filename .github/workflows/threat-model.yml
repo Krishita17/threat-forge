@@ -1,0 +1,43 @@
+# Live demo of the ThreatForge GitHub Action on this repository's own sample app.
+# It drafts a threat model and uploads the SARIF to the GitHub Security tab, so
+# the threats appear under "Code scanning alerts". This doubles as end-to-end
+# proof that the Action works.
+name: Threat model
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write   # required to upload SARIF to the Security tab
+
+jobs:
+  threat-model:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Draft STRIDE threat model (ThreatForge)
+        id: tf
+        uses: ./
+        with:
+          name: "ThreatForge sample web app"
+          code: samples/py_webapp
+          diagram: samples/diagrams/py_webapp.mmd
+          out: threatforge-out
+
+      - name: Upload threat model artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: threat-model
+          path: threatforge-out/
+
+      - name: Upload SARIF to the Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: ${{ steps.tf.outputs.sarif }}
+          category: threatforge

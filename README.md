@@ -1,5 +1,13 @@
 # ThreatForge
 
+[![CI](https://github.com/Krishita17/threat-forge/actions/workflows/ci.yml/badge.svg)](https://github.com/Krishita17/threat-forge/actions/workflows/ci.yml)
+[![Threat model](https://github.com/Krishita17/threat-forge/actions/workflows/threat-model.yml/badge.svg)](https://github.com/Krishita17/threat-forge/actions/workflows/threat-model.yml)
+![threats](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Krishita17/threat-forge/main/reports/sample_webapp_badge.json)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+![Python](https://img.shields.io/badge/python-3.10%2B-blue)
+![STRIDE](https://img.shields.io/badge/framework-STRIDE-8a2be2)
+![OWASP](https://img.shields.io/badge/maps_to-ASVS%20%7C%20NIST%20800--53%20%7C%20CWE%20%7C%20OWASP%20Top%2010-success)
+
 **An automated STRIDE threat-model generator from code and architecture diagrams.**
 
 *Read your repo or architecture diagram and draft a reviewed STRIDE threat model —
@@ -112,18 +120,85 @@ boundary-crossing flows:
 | TF-003 | Sample Web App Service | Repudiation | Security-relevant actions are not auditable | Internet → Application | 9 (Medium) |
 | ... | | | _(full register in [`reports/sample_webapp_threat_model.md`](reports/sample_webapp_threat_model.md))_ | | |
 
-### Mitigation / remediation table (threat → control → fix → priority)
+### Mitigation / remediation table (threat → control → OWASP Top 10 → fix → priority)
 
-| ID | Threat | Mapped controls | CWE | Priority |
-| --- | --- | --- | --- | --- |
-| TF-008 | Impersonation of a legitimate user | ASVS-2.1.1, NIST-IA-2, NIST-IA-5 | CWE-287 | High |
-| TF-011 | Sensitive data at rest not encrypted | ASVS-8.3.4, NIST-SC-28 | CWE-311 | High |
-| TF-006 | Weak authorization → privilege escalation | ASVS-4.1.1, ASVS-4.1.3, NIST-AC-3, NIST-AC-6 | CWE-285 | High |
-| TF-002 | Untrusted input without validation | ASVS-5.1.3, ASVS-5.3.4 | CWE-20 | High |
-| TF-005 | No rate limiting (DoS) | ASVS-11.1.4, NIST-SC-5 | CWE-770 | Medium |
+| ID | Threat | Mapped controls | CWE | OWASP Top 10 | Priority |
+| --- | --- | --- | --- | --- | --- |
+| TF-008 | Impersonation of a legitimate user | ASVS-2.1.1, NIST-IA-2, NIST-IA-5 | CWE-287 | A07:2021 | High |
+| TF-011 | Sensitive data at rest not encrypted | ASVS-8.3.4, NIST-SC-28 | CWE-311 | A02:2021 | High |
+| TF-006 | Weak authorization → privilege escalation | ASVS-4.1.1, ASVS-4.1.3, NIST-AC-3, NIST-AC-6 | CWE-285 | A01:2021 | High |
+| TF-002 | Untrusted input without validation | ASVS-5.1.3, ASVS-5.3.4 | CWE-20 | A03:2021 | High |
+| TF-005 | No rate limiting (DoS) | ASVS-11.1.4, NIST-SC-5 | CWE-770 | A04:2021 | Medium |
 
 _Full recommended fixes are in the generated report; requirement text is
 paraphrased from the frameworks (genuine control IDs/titles)._
+
+## Drop it into your workflow
+
+ThreatForge is built to live in CI, not just on a laptop. Everything below is
+part of the tool — no extra services.
+
+### 1. GitHub Action — threats in the Security tab, on every PR
+
+```yaml
+# .github/workflows/threat-model.yml
+permissions: { contents: read, security-events: write }
+jobs:
+  threat-model:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: tf
+        uses: Krishita17/threat-forge@main        # ← the Action
+        with:
+          code: .
+          diagram: docs/architecture.mmd           # optional
+          gate: "true"                              # fail PRs on NEW high-risk threats
+      - uses: github/codeql-action/upload-sarif@v3  # ← threats appear as code-scanning alerts
+        with: { sarif_file: "${{ steps.tf.outputs.sarif }}" }
+```
+
+The Action drafts the model, writes the threat register to the **job summary**,
+uploads **SARIF** so each threat shows up as a GitHub **code-scanning alert**
+(with CWE, OWASP Top 10 and the mapped control), and can optionally **gate** the
+PR. This repo [runs it on itself](.github/workflows/threat-model.yml).
+
+### 2. Baseline + gate — adopt without being blocked by the backlog
+
+Like a linter's accepted-warnings file: accept what exists today, then fail CI
+only on **new** risk.
+
+```bash
+make baseline      # writes .threatforge.baseline.json (accepted threats)
+make gate          # exits 1 if a new threat >= High appears; prints a PR-ready table
+```
+
+### 3. Threat diff — "what did this change introduce?"
+
+```bash
+python -m src.cli diff --code . --old prev.threatforge.json
+# → N new threats, M resolved, K risk-changed — as a Markdown table for the PR
+```
+
+### 4. Interactive HTML report — triage in the browser
+
+`make report` also emits a **single self-contained HTML file** (no server, no
+assets): filter by STRIDE/risk, search, sort, expand each threat's rationale and
+fix, and flip its **accept / edit / reject** status — the human-in-the-loop step,
+made usable. See `reports/sample_webapp_threat_model.html`.
+
+### 5. Exports for the tools you already use
+
+Every run emits machine-readable models so the draft flows onward:
+**SARIF** (GitHub), **pytm** (threats-as-code), **OWASP Threat Dragon** (GUI),
+a **GitHub-native Mermaid DFD**, native **JSON**, and a **shields.io badge**.
+
+### 6. Python *and* JavaScript/TypeScript
+
+The code analyzer auto-detects the language. Python uses AST analysis; JS/TS uses
+`package.json` + source heuristics (Express/Fastify/Nest, pg/mongoose/redis/prisma,
+axios/got, passport/jwt, zod/joi, rate limiters, loggers) — same model, same
+pipeline, so recovery generalizes across stacks.
 
 ## Results
 
@@ -218,6 +293,8 @@ make report          # full threat-model report + exports (sample app)
 make evaluate        # coverage / precision / noise on the synthetic catalog
 make reference-eval  # Tier-2: tool output vs a hand-authored expert reference
 make ablation        # grounded vs ungrounded reasoner (headline result)
+make baseline        # record current threats as the accepted baseline
+make gate            # fail (exit 1) on new threats above the baseline (CI gating)
 make figures         # regenerate every chart in figures/
 make test            # run the test suite
 make all             # the whole pipeline end-to-end
@@ -231,8 +308,9 @@ Run on your own inputs (code, a diagram, or both):
 ```
 
 Either input alone works; together they corroborate. Outputs land in `reports/`:
-a Markdown threat model, the DFD SVG, and machine-readable exports
-(`*.threatforge.json`, a pytm script, and a Threat Dragon-importable model).
+a Markdown threat model, an interactive HTML report, the DFD (SVG + Mermaid), and
+machine-readable exports (`*.threatforge.json`, SARIF, a pytm script, a Threat
+Dragon-importable model, and a shields.io badge).
 
 ## How it works
 

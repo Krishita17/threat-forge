@@ -48,6 +48,13 @@ def load_controls(frameworks_dir: str | None = None) -> dict[str, Control]:
     }
 
 
+def load_owasp_top10(frameworks_dir: str | None = None) -> dict:
+    """Load the CWE -> OWASP Top 10:2021 category mapping."""
+    path = os.path.join(frameworks_dir or _FRAMEWORKS_DIR, "owasp_top10.json")
+    with open(path, "r", encoding="utf-8") as fh:
+        return json.load(fh)
+
+
 def risk_level(score: int) -> str:
     """Band a 1..25 risk score. Documented, overridable thresholds."""
     if score >= 20:
@@ -60,13 +67,20 @@ def risk_level(score: int) -> str:
 
 
 class MitigationMapper:
-    def __init__(self, controls: dict[str, Control] | None = None):
+    def __init__(self, controls: dict[str, Control] | None = None,
+                 owasp: dict | None = None):
         self.controls = controls if controls is not None else load_controls()
+        self.owasp = owasp if owasp is not None else load_owasp_top10()
+
+    def _owasp_for(self, cwe: str) -> str:
+        cat = self.owasp.get("cwe_to_category", {}).get(cwe)
+        return self.owasp.get("categories", {}).get(cat, "") if cat else ""
 
     def enrich(self, threats: list[Threat]) -> list[Threat]:
         for t in threats:
             t.risk = max(1, min(25, t.likelihood * t.impact))
             t.risk_level = risk_level(t.risk)
+            t.owasp_top10 = self._owasp_for(t.cwe)
             # Normalize/validate control ids against the loaded frameworks.
             valid = [c for c in t.controls if c in self.controls]
             t.controls = valid

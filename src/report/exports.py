@@ -182,6 +182,151 @@ def _grid_positions(model: SystemModel) -> dict[str, tuple[int, int]]:
     return pos
 
 
+_SARIF_LEVEL = {"Critical": "error", "High": "error", "Medium": "warning", "Low": "note"}
+
+
+def to_sarif(model: SystemModel, threats: list[Threat], anchor_file: str = "THREATMODEL.md") -> str:
+    """Emit SARIF 2.1.0 so threats surface in the GitHub Security / code-scanning tab.
+
+    Each distinct KB pattern becomes a SARIF rule; each threat becomes a result,
+    with severity mapped to a SARIF level and rich help text (mitigation + mapped
+    controls + CWE + OWASP Top 10). Results anchor to ``anchor_file`` so they are
+    clickable in the GitHub UI.
+    """
+    rules: dict[str, dict] = {}
+    results = []
+    for t in threats:
+        rule_id = t.source_pattern or f"{t.stride}-{t.component_id}"
+        if rule_id not in rules:
+            help_lines = [
+                f"**{t.stride_name}** against `{t.component}`.",
+                "",
+                f"Mitigation: {t.mitigation}",
+            ]
+            if t.controls:
+                help_lines.append(f"Controls: {', '.join(t.controls)}")
+            if t.cwe:
+                help_lines.append(f"Weakness: {t.cwe}")
+            if t.owasp_top10:
+                help_lines.append(f"OWASP Top 10: {t.owasp_top10}")
+            rules[rule_id] = {
+                "id": rule_id,
+                "name": _rule_name(t.title),
+                "shortDescription": {"text": t.title},
+                "fullDescription": {"text": t.rationale or t.title},
+                "helpUri": _cwe_uri(t.cwe),
+                "help": {"text": "\n".join(help_lines),
+                         "markdown": "\n".join(help_lines)},
+                "defaultConfiguration": {"level": _SARIF_LEVEL.get(t.risk_level, "warning")},
+                "properties": {
+                    "stride": t.stride_name,
+                    "cwe": t.cwe,
+                    "owaspTop10": t.owasp_top10,
+                    "security-severity": str(_security_severity(t.risk)),
+                    "tags": ["security", "threat-model", "stride"],
+                },
+            }
+        results.append({
+            "ruleId": rule_id,
+            "level": _SARIF_LEVEL.get(t.risk_level, "warning"),
+            "message": {"text": f"[{t.id}] {t.title} - {t.component} "
+                                f"(risk {t.risk}/{t.risk_level}). {t.rationale}"},
+            "locations": [{
+                "physicalLocation": {
+                    "artifactLocation": {"uri": anchor_file},
+                    "region": {"startLine": 1},
+                },
+                "logicalLocations": [{"name": t.component, "kind": "component"}],
+            }],
+            "properties": {"threatId": t.id, "boundary": t.boundary,
+                           "likelihood": t.likelihood, "impact": t.impact},
+        })
+
+    doc = {
+        "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+        "version": "2.1.0",
+        "runs": [{
+            "tool": {"driver": {
+                "name": "ThreatForge",
+                "informationUri": "https://github.com/Krishita17/threat-forge",
+                "version": "0.1.0",
+                "rules": list(rules.values()),
+            }},
+            "results": results,
+        }],
+    }
+    return json.dumps(doc, indent=2)
+
+
+def to_mermaid_dfd(model: SystemModel) -> str:
+    """Markdown-embeddable Mermaid DFD that GitHub renders natively.
+
+    Unlike the input diagram format, this is styled for reading: zones as
+    subgraphs, boundary-crossing unencrypted flows highlighted. Wrap in a
+    ```mermaid fence to render inline on GitHub.
+    """
+    from ..model.schema import ElementType, TrustZone
+
+    zlabel = {
+        TrustZone.PUBLIC: "Public / Internet", TrustZone.DMZ: "Edge / DMZ",
+        TrustZone.APPLICATION: "Application", TrustZone.DATA: "Data",
+        TrustZone.THIRD_PARTY: "Third-party", TrustZone.TRUSTED: "Trusted / Admin",
+    }
+    shape = {ElementType.PROCESS: ("([", "])"), ElementType.DATA_STORE: ("[(", ")]"),
+             ElementType.EXTERNAL_ENTITY: ("[", "]")}
+    lines = ["flowchart LR"]
+    by_zone: dict = {}
+    for el in model.elements:
+        if el.type == ElementType.DATA_FLOW:
+            continue
+        by_zone.setdefault(el.zone, []).append(el)
+    for z, els in by_zone.items():
+        lines.append(f"  subgraph {z.value}[\"{zlabel.get(z, z.value)}\"]")
+        for el in els:
+            o, c = shape[el.type]
+            lines.append(f'    {el.id}{o}"{el.name}"{c}')
+        lines.append("  end")
+    for i, fl in enumerate(model.flows):
+        s, d = model.element(fl.source), model.element(fl.dest)
+        crosses = bool(s and d and s.zone != d.zone)
+        arrow = "-. insecure .->" if (crosses and not fl.encrypted) else "-->"
+        label = ",".join(fl.data) or "data"
+        lines.append(f"  {fl.source} {arrow}|{label}| {fl.dest}")
+    return "\n".join(lines) + "\n"
+
+
+def to_shields_badge(threats: list[Threat]) -> str:
+    """shields.io endpoint JSON summarizing the threat posture (for a README badge)."""
+    crit = sum(1 for t in threats if t.risk_level == "Critical")
+    high = sum(1 for t in threats if t.risk_level == "High")
+    total = len(threats)
+    if crit:
+        color, msg = "red", f"{crit} critical, {high} high / {total}"
+    elif high:
+        color, msg = "orange", f"{high} high / {total}"
+    elif total:
+        color, msg = "yellow", f"{total} (none high)"
+    else:
+        color, msg = "brightgreen", "0"
+    return json.dumps({"schemaVersion": 1, "label": "threats", "message": msg,
+                       "color": color}, indent=2)
+
+
+def _rule_name(title: str) -> str:
+    return "".join(w.capitalize() for w in title.replace("/", " ").split())[:60]
+
+
+def _cwe_uri(cwe: str) -> str:
+    if cwe and cwe.upper().startswith("CWE-"):
+        return f"https://cwe.mitre.org/data/definitions/{cwe.split('-')[1]}.html"
+    return "https://owasp.org/www-community/Threat_Modeling"
+
+
+def _security_severity(risk: int) -> float:
+    # Map 1..25 risk to the 0..10 scale GitHub code scanning uses for sorting.
+    return round(min(10.0, risk / 25 * 10), 1)
+
+
 def _s(s: str) -> str:
     return s.replace('"', "'").replace("\n", " ")
 

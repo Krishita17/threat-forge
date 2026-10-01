@@ -20,6 +20,7 @@ class Threat:
     mitigation: str = ""
     controls: list[str] = field(default_factory=list)
     cwe: str = ""
+    owasp_top10: str = ""   # OWASP Top 10:2021 category, e.g. "A01:2021 - ..."
     likelihood: int = 0     # 1-5
     impact: int = 0         # 1-5
     risk: int = 0           # likelihood * impact (1-25)

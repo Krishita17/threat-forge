@@ -1,0 +1,19 @@
+{
+  "_about": "Accepted threats. `threatforge gate` fails only on threats NOT listed here. Regenerate with `threatforge baseline`.",
+  "accepted": [
+    "End User::S::S-EXT-AUTHN",
+    "SQLite Database::D::D-STORE-EXHAUST",
+    "SQLite Database::I::I-FLOW-PLAINTEXT",
+    "SQLite Database::I::I-STORE-ATREST",
+    "SQLite Database::R::R-STORE-LOG",
+    "SQLite Database::T::T-FLOW-NOTLS",
+    "SQLite Database::T::T-STORE-INTEGRITY",
+    "Sample Web App Service::D::D-PROC-RATELIMIT",
+    "Sample Web App Service::E::E-PROC-ADMIN",
+    "Sample Web App Service::E::E-PROC-AUTHZ",
+    "Sample Web App Service::I::I-PROC-ERRORS",
+    "Sample Web App Service::R::R-PROC-LOG",
+    "Sample Web App Service::S::S-PROC-WEAKAUTH",
+    "Sample Web App Service::T::T-PROC-INPUT"
+  ]
+}

@@ -30,3 +30,9 @@ jobs:
           python -m src.cli evaluate
           python -m src.cli ablation
           python -m src.cli reference-eval
+          python -m src.cli report --name "Sample Web App" \
+            --code samples/py_webapp --diagram samples/diagrams/py_webapp.mmd
+          python -m src.cli baseline --name "Sample Web App" \
+            --code samples/py_webapp --diagram samples/diagrams/py_webapp.mmd
+          python -m src.cli gate --name "Sample Web App" \
+            --code samples/py_webapp --diagram samples/diagrams/py_webapp.mmd

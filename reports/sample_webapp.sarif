@@ -1,0 +1,859 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "ThreatForge",
+          "informationUri": "https://github.com/Krishita17/threat-forge",
+          "version": "0.1.0",
+          "rules": [
+            {
+              "id": "S-EXT-AUTHN",
+              "name": "UnauthenticatedExternalActorCanImpersonateALegitimateUser",
+              "shortDescription": {
+                "text": "Unauthenticated external actor can impersonate a legitimate user"
+              },
+              "fullDescription": {
+                "text": "End User is an external entity whose requests are not strongly authenticated, so an attacker can impersonate it (e.g. credential stuffing, forged identity)."
+              },
+              "helpUri": "https://cwe.mitre.org/data/definitions/287.html",
+              "help": {
+                "text": "**Spoofing** against `End User`.\n\nMitigation: Require strong authentication for this actor (MFA where feasible), enforce password/credential policy, and rate-limit/lock out credential-stuffing attempts.\nControls: ASVS-2.1.1, NIST-IA-2, NIST-IA-5\nWeakness: CWE-287\nOWASP Top 10: A07:2021 - Identification and Authentication Failures",
+                "markdown": "**Spoofing** against `End User`.\n\nMitigation: Require strong authentication for this actor (MFA where feasible), enforce password/credential policy, and rate-limit/lock out credential-stuffing attempts.\nControls: ASVS-2.1.1, NIST-IA-2, NIST-IA-5\nWeakness: CWE-287\nOWASP Top 10: A07:2021 - Identification and Authentication Failures"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "stride": "Spoofing",
+                "cwe": "CWE-287",
+                "owaspTop10": "A07:2021 - Identification and Authentication Failures",
+                "security-severity": "6.4",
+                "tags": [
+                  "security",
+                  "threat-model",
+                  "stride"
+                ]
+              }
+            },
+            {
+              "id": "S-PROC-WEAKAUTH",
+              "name": "ProcessAcceptsRequestsWithoutVerifyingCallerIdentity",
+              "shortDescription": {
+                "text": "Process accepts requests without verifying caller identity"
+              },
+              "fullDescription": {
+                "text": "Sample Web App Service handles requests but does not authenticate its caller, allowing a spoofed client to act as a trusted one."
+              },
+              "helpUri": "https://cwe.mitre.org/data/definitions/306.html",
+              "help": {
+                "text": "**Spoofing** against `Sample Web App Service`.\n\nMitigation: Authenticate every request to this process; reject or challenge unauthenticated callers at the trust boundary.\nControls: ASVS-2.1.1, NIST-IA-2\nWeakness: CWE-306\nOWASP Top 10: A07:2021 - Identification and Authentication Failures",
+                "markdown": "**Spoofing** against `Sample Web App Service`.\n\nMitigation: Authenticate every request to this process; reject or challenge unauthenticated callers at the trust boundary.\nControls: ASVS-2.1.1, NIST-IA-2\nWeakness: CWE-306\nOWASP Top 10: A07:2021 - Identification and Authentication Failures"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "stride": "Spoofing",
+                "cwe": "CWE-306",
+                "owaspTop10": "A07:2021 - Identification and Authentication Failures",
+                "security-severity": "6.4",
+                "tags": [
+                  "security",
+                  "threat-model",
+                  "stride"
+                ]
+              }
+            },
+            {
+              "id": "I-STORE-ATREST",
+              "name": "SensitiveDataAtRestIsNotEncrypted",
+              "shortDescription": {
+                "text": "Sensitive data at rest is not encrypted"
+              },
+              "fullDescription": {
+                "text": "SQLite Database stores sensitive data (credentials, pii) without encryption at rest, exposing it if the store is compromised."
+              },
+              "helpUri": "https://cwe.mitre.org/data/definitions/311.html",
+              "help": {
+                "text": "**Information disclosure** against `SQLite Database`.\n\nMitigation: Encrypt sensitive data at rest, manage keys separately from data, and restrict decrypt access to least privilege.\nControls: ASVS-8.3.4, NIST-SC-28\nWeakness: CWE-311\nOWASP Top 10: A02:2021 - Cryptographic Failures",
+                "markdown": "**Information disclosure** against `SQLite Database`.\n\nMitigation: Encrypt sensitive data at rest, manage keys separately from data, and restrict decrypt access to least privilege.\nControls: ASVS-8.3.4, NIST-SC-28\nWeakness: CWE-311\nOWASP Top 10: A02:2021 - Cryptographic Failures"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "stride": "Information disclosure",
+                "cwe": "CWE-311",
+                "owaspTop10": "A02:2021 - Cryptographic Failures",
+                "security-severity": "6.0",
+                "tags": [
+                  "security",
+                  "threat-model",
+                  "stride"
+                ]
+              }
+            },
+            {
+              "id": "I-FLOW-PLAINTEXT",
+              "name": "SensitiveDataIsExposedInTransit",
+              "shortDescription": {
+                "text": "Sensitive data is exposed in transit"
+              },
+              "fullDescription": {
+                "text": "SQLite Database carries sensitive data (credentials, pii) across a boundary without encryption, so it can be intercepted."
+              },
+              "helpUri": "https://cwe.mitre.org/data/definitions/319.html",
+              "help": {
+                "text": "**Information disclosure** against `SQLite Database`.\n\nMitigation: Encrypt the channel end-to-end; minimize sensitive fields in transit and avoid placing them in URLs or logs.\nControls: ASVS-9.1.1, ASVS-8.3.1, NIST-SC-8\nWeakness: CWE-319\nOWASP Top 10: A02:2021 - Cryptographic Failures",
+                "markdown": "**Information disclosure** against `SQLite Database`.\n\nMitigation: Encrypt the channel end-to-end; minimize sensitive fields in transit and avoid placing them in URLs or logs.\nControls: ASVS-9.1.1, ASVS-8.3.1, NIST-SC-8\nWeakness: CWE-319\nOWASP Top 10: A02:2021 - Cryptographic Failures"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "stride": "Information disclosure",
+                "cwe": "CWE-319",
+                "owaspTop10": "A02:2021 - Cryptographic Failures",
+                "security-severity": "6.0",
+                "tags": [
+                  "security",
+                  "threat-model",
+                  "stride"
+                ]
+              }
+            },
+            {
+              "id": "E-PROC-AUTHZ",
+              "name": "MissingOrWeakAuthorizationEnablesPrivilegeEscalation",
+              "shortDescription": {
+                "text": "Missing or weak authorization enables privilege escalation"
+              },
+              "fullDescription": {
+                "text": "Sample Web App Service does not enforce authorization checks per action, so an authenticated low-privilege actor may perform privileged operations."
+              },
+              "helpUri": "https://cwe.mitre.org/data/definitions/285.html",
+              "help": {
+                "text": "**Elevation of privilege** against `Sample Web App Service`.\n\nMitigation: Enforce server-side, deny-by-default authorization on every privileged action; apply least privilege and verify object-level access.\nControls: ASVS-4.1.1, ASVS-4.1.3, NIST-AC-3, NIST-AC-6\nWeakness: CWE-285\nOWASP Top 10: A01:2021 - Broken Access Control",
+                "markdown": "**Elevation of privilege** against `Sample Web App Service`.\n\nMitigation: Enforce server-side, deny-by-default authorization on every privileged action; apply least privilege and verify object-level access.\nControls: ASVS-4.1.1, ASVS-4.1.3, NIST-AC-3, NIST-AC-6\nWeakness: CWE-285\nOWASP Top 10: A01:2021 - Broken Access Control"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "stride": "Elevation of privilege",
+                "cwe": "CWE-285",
+                "owaspTop10": "A01:2021 - Broken Access Control",
+                "security-severity": "6.0",
+                "tags": [
+                  "security",
+                  "threat-model",
+                  "stride"
+                ]
+              }
+            },
+            {
+              "id": "T-FLOW-NOTLS",
+              "name": "DataInTransitCanBeTamperedWithAcrossATrustBoundary",
+              "shortDescription": {
+                "text": "Data in transit can be tampered with across a trust boundary"
+              },
+              "fullDescription": {
+                "text": "SQLite Database crosses a trust boundary without transport integrity (no TLS/encryption), so an on-path attacker can modify the data."
+              },
+              "helpUri": "https://cwe.mitre.org/data/definitions/319.html",
+              "help": {
+                "text": "**Tampering** against `SQLite Database`.\n\nMitigation: Encrypt and integrity-protect the channel (TLS 1.2+); reject plaintext transport for any boundary-crossing flow.\nControls: ASVS-9.1.1, NIST-SC-8\nWeakness: CWE-319\nOWASP Top 10: A02:2021 - Cryptographic Failures",
+                "markdown": "**Tampering** against `SQLite Database`.\n\nMitigation: Encrypt and integrity-protect the channel (TLS 1.2+); reject plaintext transport for any boundary-crossing flow.\nControls: ASVS-9.1.1, NIST-SC-8\nWeakness: CWE-319\nOWASP Top 10: A02:2021 - Cryptographic Failures"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "stride": "Tampering",
+                "cwe": "CWE-319",
+                "owaspTop10": "A02:2021 - Cryptographic Failures",
+                "security-severity": "4.8",
+                "tags": [
+                  "security",
+                  "threat-model",
+                  "stride"
+                ]
+              }
+            },
+            {
+              "id": "T-PROC-INPUT",
+              "name": "UntrustedInputReachesTheProcessWithoutValidation",
+              "shortDescription": {
+                "text": "Untrusted input reaches the process without validation"
+              },
+              "fullDescription": {
+                "text": "Sample Web App Service receives data from a less-trusted zone and may process it without validation, enabling injection or state corruption."
+              },
+              "helpUri": "https://cwe.mitre.org/data/definitions/20.html",
+              "help": {
+                "text": "**Tampering** against `Sample Web App Service`.\n\nMitigation: Validate and canonicalize all input at the boundary; use parameterized queries and context-aware output encoding.\nControls: ASVS-5.1.3, ASVS-5.3.4\nWeakness: CWE-20\nOWASP Top 10: A03:2021 - Injection",
+                "markdown": "**Tampering** against `Sample Web App Service`.\n\nMitigation: Validate and canonicalize all input at the boundary; use parameterized queries and context-aware output encoding.\nControls: ASVS-5.1.3, ASVS-5.3.4\nWeakness: CWE-20\nOWASP Top 10: A03:2021 - Injection"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "stride": "Tampering",
+                "cwe": "CWE-20",
+                "owaspTop10": "A03:2021 - Injection",
+                "security-severity": "4.8",
+                "tags": [
+                  "security",
+                  "threat-model",
+                  "stride"
+                ]
+              }
+            },
+            {
+              "id": "E-PROC-ADMIN",
+              "name": "Internet-facingPathCanReachPrivilegedAdminFunctionality",
+              "shortDescription": {
+                "text": "Internet-facing path can reach privileged/admin functionality"
+              },
+              "fullDescription": {
+                "text": "Sample Web App Service is internet-facing and sits on a path toward trusted/admin functions; a flaw here can be leveraged to reach privileged operations."
+              },
+              "helpUri": "https://cwe.mitre.org/data/definitions/269.html",
+              "help": {
+                "text": "**Elevation of privilege** against `Sample Web App Service`.\n\nMitigation: Segment admin functionality behind separate authentication and network controls; never expose privileged operations on the public path.\nControls: ASVS-4.1.1, NIST-AC-6\nWeakness: CWE-269\nOWASP Top 10: A01:2021 - Broken Access Control",
+                "markdown": "**Elevation of privilege** against `Sample Web App Service`.\n\nMitigation: Segment admin functionality behind separate authentication and network controls; never expose privileged operations on the public path.\nControls: ASVS-4.1.1, NIST-AC-6\nWeakness: CWE-269\nOWASP Top 10: A01:2021 - Broken Access Control"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "stride": "Elevation of privilege",
+                "cwe": "CWE-269",
+                "owaspTop10": "A01:2021 - Broken Access Control",
+                "security-severity": "4.0",
+                "tags": [
+                  "security",
+                  "threat-model",
+                  "stride"
+                ]
+              }
+            },
+            {
+              "id": "D-PROC-RATELIMIT",
+              "name": "NoRateLimitingOnAnInternet-facingProcess",
+              "shortDescription": {
+                "text": "No rate limiting on an internet-facing process"
+              },
+              "fullDescription": {
+                "text": "Sample Web App Service is internet-facing without rate limiting or quotas, so it can be overwhelmed by request floods."
+              },
+              "helpUri": "https://cwe.mitre.org/data/definitions/770.html",
+              "help": {
+                "text": "**Denial of service** against `Sample Web App Service`.\n\nMitigation: Apply rate limiting, request quotas, timeouts and resource caps; place the service behind an edge/DoS-protection layer.\nControls: ASVS-11.1.4, NIST-SC-5\nWeakness: CWE-770\nOWASP Top 10: A04:2021 - Insecure Design",
+                "markdown": "**Denial of service** against `Sample Web App Service`.\n\nMitigation: Apply rate limiting, request quotas, timeouts and resource caps; place the service behind an edge/DoS-protection layer.\nControls: ASVS-11.1.4, NIST-SC-5\nWeakness: CWE-770\nOWASP Top 10: A04:2021 - Insecure Design"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "stride": "Denial of service",
+                "cwe": "CWE-770",
+                "owaspTop10": "A04:2021 - Insecure Design",
+                "security-severity": "3.6",
+                "tags": [
+                  "security",
+                  "threat-model",
+                  "stride"
+                ]
+              }
+            },
+            {
+              "id": "R-PROC-LOG",
+              "name": "Security-relevantActionsAreNotAuditable",
+              "shortDescription": {
+                "text": "Security-relevant actions are not auditable"
+              },
+              "fullDescription": {
+                "text": "Sample Web App Service performs security-relevant actions but does not emit tamper-resistant audit logs, so actors can deny having acted."
+              },
+              "helpUri": "https://cwe.mitre.org/data/definitions/778.html",
+              "help": {
+                "text": "**Repudiation** against `Sample Web App Service`.\n\nMitigation: Log security-relevant events with user identity, timestamp and outcome to an append-only, access-controlled store.\nControls: ASVS-7.1.3, NIST-AU-2, NIST-AU-9\nWeakness: CWE-778\nOWASP Top 10: A09:2021 - Security Logging and Monitoring Failures",
+                "markdown": "**Repudiation** against `Sample Web App Service`.\n\nMitigation: Log security-relevant events with user identity, timestamp and outcome to an append-only, access-controlled store.\nControls: ASVS-7.1.3, NIST-AU-2, NIST-AU-9\nWeakness: CWE-778\nOWASP Top 10: A09:2021 - Security Logging and Monitoring Failures"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "stride": "Repudiation",
+                "cwe": "CWE-778",
+                "owaspTop10": "A09:2021 - Security Logging and Monitoring Failures",
+                "security-severity": "3.6",
+                "tags": [
+                  "security",
+                  "threat-model",
+                  "stride"
+                ]
+              }
+            },
+            {
+              "id": "T-STORE-INTEGRITY",
+              "name": "StoredDataCanBeModifiedWithoutDetection",
+              "shortDescription": {
+                "text": "Stored data can be modified without detection"
+              },
+              "fullDescription": {
+                "text": "SQLite Database persists data without integrity controls or change auditing, so unauthorized modification may go unnoticed."
+              },
+              "helpUri": "https://cwe.mitre.org/data/definitions/345.html",
+              "help": {
+                "text": "**Tampering** against `SQLite Database`.\n\nMitigation: Apply write authorization, integrity checks (hashing/signing) and tamper-evident audit logging to the store.\nControls: ASVS-1.9.2, NIST-SI-7\nWeakness: CWE-345\nOWASP Top 10: A08:2021 - Software and Data Integrity Failures",
+                "markdown": "**Tampering** against `SQLite Database`.\n\nMitigation: Apply write authorization, integrity checks (hashing/signing) and tamper-evident audit logging to the store.\nControls: ASVS-1.9.2, NIST-SI-7\nWeakness: CWE-345\nOWASP Top 10: A08:2021 - Software and Data Integrity Failures"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "stride": "Tampering",
+                "cwe": "CWE-345",
+                "owaspTop10": "A08:2021 - Software and Data Integrity Failures",
+                "security-severity": "3.2",
+                "tags": [
+                  "security",
+                  "threat-model",
+                  "stride"
+                ]
+              }
+            },
+            {
+              "id": "D-STORE-EXHAUST",
+              "name": "UnboundedGrowthOrConnectionExhaustionInTheStore",
+              "shortDescription": {
+                "text": "Unbounded growth or connection exhaustion in the store"
+              },
+              "fullDescription": {
+                "text": "SQLite Database can be driven to resource exhaustion (storage, connections) by unbounded writes from upstream processes."
+              },
+              "helpUri": "https://cwe.mitre.org/data/definitions/770.html",
+              "help": {
+                "text": "**Denial of service** against `SQLite Database`.\n\nMitigation: Enforce connection pooling limits, quotas and input size caps upstream; monitor capacity and set alerts.\nControls: NIST-SC-5\nWeakness: CWE-770\nOWASP Top 10: A04:2021 - Insecure Design",
+                "markdown": "**Denial of service** against `SQLite Database`.\n\nMitigation: Enforce connection pooling limits, quotas and input size caps upstream; monitor capacity and set alerts.\nControls: NIST-SC-5\nWeakness: CWE-770\nOWASP Top 10: A04:2021 - Insecure Design"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "stride": "Denial of service",
+                "cwe": "CWE-770",
+                "owaspTop10": "A04:2021 - Insecure Design",
+                "security-severity": "2.4",
+                "tags": [
+                  "security",
+                  "threat-model",
+                  "stride"
+                ]
+              }
+            },
+            {
+              "id": "R-STORE-LOG",
+              "name": "WritesToTheStoreAreNotAttributable",
+              "shortDescription": {
+                "text": "Writes to the store are not attributable"
+              },
+              "fullDescription": {
+                "text": "SQLite Database does not record who changed what, so repudiation of data changes is possible."
+              },
+              "helpUri": "https://cwe.mitre.org/data/definitions/778.html",
+              "help": {
+                "text": "**Repudiation** against `SQLite Database`.\n\nMitigation: Record attributable, append-only change history for the store and protect it from the accounts that can write data.\nControls: ASVS-7.1.3, NIST-AU-2\nWeakness: CWE-778\nOWASP Top 10: A09:2021 - Security Logging and Monitoring Failures",
+                "markdown": "**Repudiation** against `SQLite Database`.\n\nMitigation: Record attributable, append-only change history for the store and protect it from the accounts that can write data.\nControls: ASVS-7.1.3, NIST-AU-2\nWeakness: CWE-778\nOWASP Top 10: A09:2021 - Security Logging and Monitoring Failures"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "stride": "Repudiation",
+                "cwe": "CWE-778",
+                "owaspTop10": "A09:2021 - Security Logging and Monitoring Failures",
+                "security-severity": "2.4",
+                "tags": [
+                  "security",
+                  "threat-model",
+                  "stride"
+                ]
+              }
+            },
+            {
+              "id": "I-PROC-ERRORS",
+              "name": "VerboseErrorsOrResponsesLeakInternalDetail",
+              "shortDescription": {
+                "text": "Verbose errors or responses leak internal detail"
+              },
+              "fullDescription": {
+                "text": "Sample Web App Service is internet-facing and may return verbose errors/stack traces that disclose internal structure to attackers."
+              },
+              "helpUri": "https://cwe.mitre.org/data/definitions/209.html",
+              "help": {
+                "text": "**Information disclosure** against `Sample Web App Service`.\n\nMitigation: Return generic error responses to clients; log detail server-side only; disable debug mode in production.\nControls: ASVS-7.4.1, ASVS-14.3.2\nWeakness: CWE-209\nOWASP Top 10: A05:2021 - Security Misconfiguration",
+                "markdown": "**Information disclosure** against `Sample Web App Service`.\n\nMitigation: Return generic error responses to clients; log detail server-side only; disable debug mode in production.\nControls: ASVS-7.4.1, ASVS-14.3.2\nWeakness: CWE-209\nOWASP Top 10: A05:2021 - Security Misconfiguration"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "stride": "Information disclosure",
+                "cwe": "CWE-209",
+                "owaspTop10": "A05:2021 - Security Misconfiguration",
+                "security-severity": "2.4",
+                "tags": [
+                  "security",
+                  "threat-model",
+                  "stride"
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "S-EXT-AUTHN",
+          "level": "error",
+          "message": {
+            "text": "[TF-008] Unauthenticated external actor can impersonate a legitimate user - End User (risk 16/High). End User is an external entity whose requests are not strongly authenticated, so an attacker can impersonate it (e.g. credential stuffing, forged identity)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "sample_webapp_threat_model.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "End User",
+                  "kind": "component"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "threatId": "TF-008",
+            "boundary": "",
+            "likelihood": 4,
+            "impact": 4
+          }
+        },
+        {
+          "ruleId": "S-PROC-WEAKAUTH",
+          "level": "error",
+          "message": {
+            "text": "[TF-001] Process accepts requests without verifying caller identity - Sample Web App Service (risk 16/High). Sample Web App Service handles requests but does not authenticate its caller, allowing a spoofed client to act as a trusted one."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "sample_webapp_threat_model.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "Sample Web App Service",
+                  "kind": "component"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "threatId": "TF-001",
+            "boundary": "Internet -> Application",
+            "likelihood": 4,
+            "impact": 4
+          }
+        },
+        {
+          "ruleId": "I-STORE-ATREST",
+          "level": "error",
+          "message": {
+            "text": "[TF-011] Sensitive data at rest is not encrypted - SQLite Database (risk 15/High). SQLite Database stores sensitive data (credentials, pii) without encryption at rest, exposing it if the store is compromised."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "sample_webapp_threat_model.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "SQLite Database",
+                  "kind": "component"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "threatId": "TF-011",
+            "boundary": "",
+            "likelihood": 3,
+            "impact": 5
+          }
+        },
+        {
+          "ruleId": "I-FLOW-PLAINTEXT",
+          "level": "error",
+          "message": {
+            "text": "[TF-014] Sensitive data is exposed in transit - SQLite Database (risk 15/High). SQLite Database carries sensitive data (credentials, pii) across a boundary without encryption, so it can be intercepted."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "sample_webapp_threat_model.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "SQLite Database",
+                  "kind": "component"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "threatId": "TF-014",
+            "boundary": "Application -> Data",
+            "likelihood": 3,
+            "impact": 5
+          }
+        },
+        {
+          "ruleId": "E-PROC-AUTHZ",
+          "level": "error",
+          "message": {
+            "text": "[TF-006] Missing or weak authorization enables privilege escalation - Sample Web App Service (risk 15/High). Sample Web App Service does not enforce authorization checks per action, so an authenticated low-privilege actor may perform privileged operations."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "sample_webapp_threat_model.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "Sample Web App Service",
+                  "kind": "component"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "threatId": "TF-006",
+            "boundary": "Internet -> Application",
+            "likelihood": 3,
+            "impact": 5
+          }
+        },
+        {
+          "ruleId": "T-FLOW-NOTLS",
+          "level": "error",
+          "message": {
+            "text": "[TF-013] Data in transit can be tampered with across a trust boundary - SQLite Database (risk 12/High). SQLite Database crosses a trust boundary without transport integrity (no TLS/encryption), so an on-path attacker can modify the data."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "sample_webapp_threat_model.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "SQLite Database",
+                  "kind": "component"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "threatId": "TF-013",
+            "boundary": "Application -> Data",
+            "likelihood": 3,
+            "impact": 4
+          }
+        },
+        {
+          "ruleId": "T-PROC-INPUT",
+          "level": "error",
+          "message": {
+            "text": "[TF-002] Untrusted input reaches the process without validation - Sample Web App Service (risk 12/High). Sample Web App Service receives data from a less-trusted zone and may process it without validation, enabling injection or state corruption."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "sample_webapp_threat_model.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "Sample Web App Service",
+                  "kind": "component"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "threatId": "TF-002",
+            "boundary": "Internet -> Application",
+            "likelihood": 3,
+            "impact": 4
+          }
+        },
+        {
+          "ruleId": "E-PROC-ADMIN",
+          "level": "warning",
+          "message": {
+            "text": "[TF-007] Internet-facing path can reach privileged/admin functionality - Sample Web App Service (risk 10/Medium). Sample Web App Service is internet-facing and sits on a path toward trusted/admin functions; a flaw here can be leveraged to reach privileged operations."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "sample_webapp_threat_model.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "Sample Web App Service",
+                  "kind": "component"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "threatId": "TF-007",
+            "boundary": "Internet -> Application",
+            "likelihood": 2,
+            "impact": 5
+          }
+        },
+        {
+          "ruleId": "D-PROC-RATELIMIT",
+          "level": "warning",
+          "message": {
+            "text": "[TF-005] No rate limiting on an internet-facing process - Sample Web App Service (risk 9/Medium). Sample Web App Service is internet-facing without rate limiting or quotas, so it can be overwhelmed by request floods."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "sample_webapp_threat_model.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "Sample Web App Service",
+                  "kind": "component"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "threatId": "TF-005",
+            "boundary": "Internet -> Application",
+            "likelihood": 3,
+            "impact": 3
+          }
+        },
+        {
+          "ruleId": "R-PROC-LOG",
+          "level": "warning",
+          "message": {
+            "text": "[TF-003] Security-relevant actions are not auditable - Sample Web App Service (risk 9/Medium). Sample Web App Service performs security-relevant actions but does not emit tamper-resistant audit logs, so actors can deny having acted."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "sample_webapp_threat_model.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "Sample Web App Service",
+                  "kind": "component"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "threatId": "TF-003",
+            "boundary": "Internet -> Application",
+            "likelihood": 3,
+            "impact": 3
+          }
+        },
+        {
+          "ruleId": "T-STORE-INTEGRITY",
+          "level": "warning",
+          "message": {
+            "text": "[TF-009] Stored data can be modified without detection - SQLite Database (risk 8/Medium). SQLite Database persists data without integrity controls or change auditing, so unauthorized modification may go unnoticed."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "sample_webapp_threat_model.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "SQLite Database",
+                  "kind": "component"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "threatId": "TF-009",
+            "boundary": "",
+            "likelihood": 2,
+            "impact": 4
+          }
+        },
+        {
+          "ruleId": "D-STORE-EXHAUST",
+          "level": "warning",
+          "message": {
+            "text": "[TF-012] Unbounded growth or connection exhaustion in the store - SQLite Database (risk 6/Medium). SQLite Database can be driven to resource exhaustion (storage, connections) by unbounded writes from upstream processes."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "sample_webapp_threat_model.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "SQLite Database",
+                  "kind": "component"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "threatId": "TF-012",
+            "boundary": "",
+            "likelihood": 2,
+            "impact": 3
+          }
+        },
+        {
+          "ruleId": "R-STORE-LOG",
+          "level": "warning",
+          "message": {
+            "text": "[TF-010] Writes to the store are not attributable - SQLite Database (risk 6/Medium). SQLite Database does not record who changed what, so repudiation of data changes is possible."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "sample_webapp_threat_model.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "SQLite Database",
+                  "kind": "component"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "threatId": "TF-010",
+            "boundary": "",
+            "likelihood": 2,
+            "impact": 3
+          }
+        },
+        {
+          "ruleId": "I-PROC-ERRORS",
+          "level": "warning",
+          "message": {
+            "text": "[TF-004] Verbose errors or responses leak internal detail - Sample Web App Service (risk 6/Medium). Sample Web App Service is internet-facing and may return verbose errors/stack traces that disclose internal structure to attackers."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "sample_webapp_threat_model.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "Sample Web App Service",
+                  "kind": "component"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "threatId": "TF-004",
+            "boundary": "Internet -> Application",
+            "likelihood": 3,
+            "impact": 2
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+flowchart LR
+  subgraph application["Application"]
+    app(["Sample Web App Service"])
+  end
+  subgraph public["Public / Internet"]
+    end_user["End User"]
+  end
+  subgraph data["Data"]
+    store_11[("SQLite Database")]
+  end
+  subgraph third_party["Third-party"]
+    third_party["Third-party API"]
+  end
+  end_user -->|credentials,pii| app
+  app -. insecure .->|credentials,pii| store_11
+  app -->|payment,request| third_party
