@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1020" height="228" viewBox="0 0 1020 228" font-family="Helvetica,Arial,sans-serif">
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L9,3 L0,6 Z" fill="#555"/></marker></defs>
+<rect width="1020" height="228" fill="#ffffff"/>
+<text x="510.0" y="34" text-anchor="middle" font-size="20" font-weight="bold" fill="#222">Sample Web App - Data-Flow Diagram</text>
+<rect x="30" y="52" width="210" height="138" rx="10" fill="#fdecea" stroke="#d0d0d0"/>
+<text x="135.0" y="70" text-anchor="middle" font-size="13" font-weight="bold" fill="#555">Public / Internet</text>
+<rect x="280" y="52" width="210" height="138" rx="10" fill="#fef7e0" stroke="#d0d0d0"/>
+<text x="385.0" y="70" text-anchor="middle" font-size="13" font-weight="bold" fill="#555">Third-party</text>
+<rect x="530" y="52" width="210" height="138" rx="10" fill="#e6f4ea" stroke="#d0d0d0"/>
+<text x="635.0" y="70" text-anchor="middle" font-size="13" font-weight="bold" fill="#555">Application</text>
+<rect x="780" y="52" width="210" height="138" rx="10" fill="#f3e8fd" stroke="#d0d0d0"/>
+<text x="885.0" y="70" text-anchor="middle" font-size="13" font-weight="bold" fill="#555">Data</text>
+<line x1="510.0" y1="46" x2="510.0" y2="208" stroke="#d93025" stroke-width="2" stroke-dasharray="7,5"/>
+<text x="510.0" y="222" text-anchor="middle" font-size="10" fill="#d93025">trust boundary</text>
+<line x1="760.0" y1="46" x2="760.0" y2="208" stroke="#d93025" stroke-width="2" stroke-dasharray="7,5"/>
+<text x="760.0" y="222" text-anchor="middle" font-size="10" fill="#d93025">trust boundary</text>
+<line x1="215.0" y1="107.0" x2="555.0" y2="107.0" stroke="#888" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="385.0" y="103.0" text-anchor="middle" font-size="9" fill="#666">credentials,pii 🔒</text>
+<line x1="715.0" y1="107.0" x2="805.0" y2="107.0" stroke="#d93025" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="760.0" y="103.0" text-anchor="middle" font-size="9" fill="#666">credentials,pii</text>
+<line x1="555.0" y1="107.0" x2="465.0" y2="107.0" stroke="#888" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="510.0" y="103.0" text-anchor="middle" font-size="9" fill="#666">payment,request 🔒</text>
+<rect x="555.0" y="80" width="160" height="54" rx="27" fill="#ffffff" stroke="#1a73e8" stroke-width="2"/><text x="635.0" y="111.0" text-anchor="middle" font-size="12" fill="#222">Sample Web App Service</text>
+<rect x="55.0" y="80" width="160" height="54" fill="#ffffff" stroke="#b06000" stroke-width="2"/><text x="135.0" y="111.0" text-anchor="middle" font-size="12" fill="#222">End User</text>
+<path d="M805.0,88 a80.0,8 0 0 1 160,0 v38 a80.0,8 0 0 1 -160,0 Z" fill="#ffffff" stroke="#8430ce" stroke-width="2"/><text x="885.0" y="111.0" text-anchor="middle" font-size="12" fill="#222">SQLite Database</text>
+<rect x="305.0" y="80" width="160" height="54" fill="#ffffff" stroke="#b06000" stroke-width="2"/><text x="385.0" y="111.0" text-anchor="middle" font-size="12" fill="#222">Third-party API</text>
+</svg>

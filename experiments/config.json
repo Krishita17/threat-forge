@@ -1,0 +1,8 @@
+{
+  "_about": "Reproducible experiment configuration. Mirrors config/config.json defaults used to produce the numbers in results/ and figures/.",
+  "seed": 7,
+  "backend": "stub",
+  "synthetic_presets": ["secure_baseline", "insecure_startup", "partial_hardening", "internal_tool"],
+  "metrics": ["coverage", "precision", "noise_rate"],
+  "ablation": {"grounded": "GroundedReasoner", "baseline": "UngroundedReasoner"}
+}

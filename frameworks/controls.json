@@ -1,0 +1,34 @@
+{
+  "_about": "Control reference for ThreatForge mitigation mapping. Identifiers and titles are the genuine ones published by each framework; the `requirement` text is PARAPHRASED (a short summary in my own words), never the verbatim standard text. Consult the official sources for authoritative wording. Author: Krishita Sanjay Choksi.",
+  "sources": {
+    "ASVS": "OWASP Application Security Verification Standard v4.0.3",
+    "NIST": "NIST SP 800-53 Rev. 5 (Security and Privacy Controls)",
+    "CWE": "MITRE Common Weakness Enumeration v4.x"
+  },
+  "controls": [
+    {"id": "ASVS-2.1.1", "framework": "ASVS", "title": "Password security", "requirement": "User passwords must meet minimum length and strength expectations and be checked against breached-password lists."},
+    {"id": "ASVS-2.1.1-MFA", "framework": "ASVS", "title": "Multi-factor authentication", "requirement": "Sensitive or administrative functions should require an additional authentication factor."},
+    {"id": "ASVS-4.1.1", "framework": "ASVS", "title": "General access control design", "requirement": "Access control decisions must be enforced server-side and fail closed (deny by default)."},
+    {"id": "ASVS-4.1.3", "framework": "ASVS", "title": "Least-privilege access control", "requirement": "Users and services should only be granted the minimum privileges required for their function."},
+    {"id": "ASVS-5.1.3", "framework": "ASVS", "title": "Input validation", "requirement": "All untrusted input should be validated against an allow-list of expected structure and type."},
+    {"id": "ASVS-5.3.4", "framework": "ASVS", "title": "Injection prevention", "requirement": "Use parameterized queries or equivalent so untrusted data cannot alter query/command structure."},
+    {"id": "ASVS-7.1.3", "framework": "ASVS", "title": "Security event logging", "requirement": "Security-relevant events should be logged with enough context to reconstruct what happened and who did it."},
+    {"id": "ASVS-7.4.1", "framework": "ASVS", "title": "Safe error handling", "requirement": "Error responses shown to users must not leak stack traces or internal detail."},
+    {"id": "ASVS-8.3.1", "framework": "ASVS", "title": "Sensitive data in requests", "requirement": "Sensitive data should not be placed in URLs or query strings where it can be logged or cached."},
+    {"id": "ASVS-8.3.4", "framework": "ASVS", "title": "Protect data at rest", "requirement": "Sensitive data stored by the application should be classified and protected with encryption at rest."},
+    {"id": "ASVS-9.1.1", "framework": "ASVS", "title": "Transport security", "requirement": "All communication should use strong, current TLS and reject plaintext transport."},
+    {"id": "ASVS-11.1.4", "framework": "ASVS", "title": "Anti-automation / rate limiting", "requirement": "Protect resources from automated abuse with rate limiting and anti-automation controls."},
+    {"id": "ASVS-1.9.2", "framework": "ASVS", "title": "Data integrity in transit/storage", "requirement": "Protect the integrity of data as it moves between components and while stored."},
+    {"id": "ASVS-14.3.2", "framework": "ASVS", "title": "Disable debug in production", "requirement": "Debugging features and verbose diagnostics must be disabled in production builds."},
+    {"id": "NIST-IA-2", "framework": "NIST", "title": "Identification and Authentication (Organizational Users)", "requirement": "Uniquely identify and authenticate users before granting access to the system."},
+    {"id": "NIST-IA-5", "framework": "NIST", "title": "Authenticator Management", "requirement": "Manage authenticators (passwords, tokens, keys) securely across their lifecycle."},
+    {"id": "NIST-AC-3", "framework": "NIST", "title": "Access Enforcement", "requirement": "Enforce approved authorizations for logical access to information and resources."},
+    {"id": "NIST-AC-6", "framework": "NIST", "title": "Least Privilege", "requirement": "Grant only the access required for users and processes to perform their tasks."},
+    {"id": "NIST-AU-2", "framework": "NIST", "title": "Event Logging", "requirement": "Determine and log the security-relevant events the system must capture."},
+    {"id": "NIST-AU-9", "framework": "NIST", "title": "Protection of Audit Information", "requirement": "Protect audit records and logging tools from unauthorized access and modification."},
+    {"id": "NIST-SC-5", "framework": "NIST", "title": "Denial-of-Service Protection", "requirement": "Protect against or limit the effects of denial-of-service conditions."},
+    {"id": "NIST-SC-8", "framework": "NIST", "title": "Transmission Confidentiality and Integrity", "requirement": "Protect the confidentiality and integrity of transmitted information."},
+    {"id": "NIST-SC-28", "framework": "NIST", "title": "Protection of Information at Rest", "requirement": "Protect the confidentiality and integrity of information while it is stored."},
+    {"id": "NIST-SI-7", "framework": "NIST", "title": "Software, Firmware, and Information Integrity", "requirement": "Detect unauthorized changes to software, firmware and information."}
+  ]
+}

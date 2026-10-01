@@ -1,0 +1,12 @@
+{
+  "system": "Sample Web App",
+  "reference": "references/sample_webapp.reference.json",
+  "expected": 11,
+  "proposed": 11,
+  "true_positives": 11,
+  "false_negatives": 0,
+  "false_positives": 0,
+  "coverage": 1.0,
+  "precision": 1.0,
+  "noise_rate": 0.0
+}

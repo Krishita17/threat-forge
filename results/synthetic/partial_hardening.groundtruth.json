@@ -1,0 +1,57 @@
+[
+  {
+    "component": "API Gateway",
+    "stride": "D",
+    "weakness": "no_rate_limit"
+  },
+  {
+    "component": "API Gateway",
+    "stride": "I",
+    "weakness": "verbose_errors"
+  },
+  {
+    "component": "Service A",
+    "stride": "T",
+    "weakness": "no_input_validation"
+  },
+  {
+    "component": "Service B",
+    "stride": "T",
+    "weakness": "no_input_validation"
+  },
+  {
+    "component": "Service C",
+    "stride": "T",
+    "weakness": "no_input_validation"
+  },
+  {
+    "component": "Primary Database",
+    "stride": "I",
+    "weakness": "no_encryption_at_rest"
+  },
+  {
+    "component": "API Gateway",
+    "stride": "T",
+    "weakness": "plaintext_transport"
+  },
+  {
+    "component": "Service A",
+    "stride": "I",
+    "weakness": "plaintext_transport"
+  },
+  {
+    "component": "Primary Database",
+    "stride": "T",
+    "weakness": "plaintext_transport"
+  },
+  {
+    "component": "Service B",
+    "stride": "I",
+    "weakness": "plaintext_transport"
+  },
+  {
+    "component": "Service C",
+    "stride": "I",
+    "weakness": "plaintext_transport"
+  }
+]

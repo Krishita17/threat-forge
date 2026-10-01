@@ -1,0 +1,27 @@
+[
+  {
+    "component": "API Gateway",
+    "stride": "I",
+    "weakness": "verbose_errors"
+  },
+  {
+    "component": "Service A",
+    "stride": "E",
+    "weakness": "no_authorization"
+  },
+  {
+    "component": "Service A",
+    "stride": "R",
+    "weakness": "no_audit_logging_proc"
+  },
+  {
+    "component": "Primary Database",
+    "stride": "T",
+    "weakness": "no_store_integrity"
+  },
+  {
+    "component": "Primary Database",
+    "stride": "R",
+    "weakness": "no_store_audit"
+  }
+]

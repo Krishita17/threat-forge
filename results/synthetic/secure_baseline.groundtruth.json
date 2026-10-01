@@ -1,0 +1,7 @@
+[
+  {
+    "component": "API Gateway",
+    "stride": "I",
+    "weakness": "verbose_errors"
+  }
+]

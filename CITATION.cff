@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: "If you use ThreatForge in your work, please cite it as below."
+title: "ThreatForge: An Automated STRIDE Threat-Model Generator from Code and Architecture Diagrams"
+abstract: >-
+  ThreatForge ingests a code repository and/or an architecture diagram, recovers
+  the system's structure via static analysis, infers trust boundaries, and uses a
+  grounded local-LLM reasoner over a STRIDE applicability knowledge base to draft a
+  per-component STRIDE threat model with mitigations mapped to named controls
+  (OWASP ASVS, NIST SP 800-53, CWE) and risk-based triage. It is a human-in-the-loop
+  drafting tool: outputs are reviewable drafts, not security sign-offs.
+type: software
+authors:
+  - family-names: "Choksi"
+    given-names: "Krishita Sanjay"
+license: MIT
+version: "0.1.0"
+date-released: "2026-10-01"
+keywords:
+  - threat-modeling
+  - STRIDE
+  - application-security
+  - static-analysis
+  - data-flow-diagram
+  - trust-boundaries
+  - security-by-design

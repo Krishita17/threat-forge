@@ -1,0 +1,5 @@
+system,expected,proposed,true_positives,false_negatives,false_positives,coverage,precision,noise_rate
+secure_baseline,1,4,1,0,3,1.0,0.25,0.75
+insecure_startup,19,24,19,0,5,1.0,0.792,0.208
+partial_hardening,11,14,11,0,3,1.0,0.786,0.214
+internal_tool,5,7,5,0,2,1.0,0.714,0.286

@@ -1,0 +1,20 @@
+{
+  "grounded": {
+    "proposed_total": 49,
+    "true_positives": 36,
+    "false_positives": 13,
+    "coverage": 1.0,
+    "precision": 0.735,
+    "noise_rate": 0.265
+  },
+  "ungrounded": {
+    "proposed_total": 118,
+    "true_positives": 34,
+    "false_positives": 84,
+    "coverage": 0.944,
+    "precision": 0.288,
+    "noise_rate": 0.712
+  },
+  "noise_reduction": 0.447,
+  "precision_gain": 0.447
+}

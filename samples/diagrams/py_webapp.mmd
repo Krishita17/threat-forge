@@ -1,0 +1,16 @@
+flowchart LR
+  subgraph public[Public / Internet]
+    end_user["End User|external_entity|auth=yes"]
+  end
+  subgraph application[Application]
+    app(["Sample Web App Service|process|internet=yes;auth=yes;authz=no;ratelimit=no;validate=no;audit=no;sens=yes"])
+  end
+  subgraph data[Data]
+    store_6[("SQLite Database|data_store|enc=no;sens=yes;audit=no")]
+  end
+  subgraph thirdparty[Third-party]
+    third_party["Payment Provider|external_entity|auth=yes"]
+  end
+  end_user -->|credentials,pii / https| app
+  app -->|credentials,pii / tcp| store_6
+  app -->|payment / https| third_party

@@ -1,0 +1,222 @@
+{
+  "name": "partial_hardening",
+  "schema_version": "1.0",
+  "metadata": {},
+  "elements": [
+    {
+      "id": "ext_user",
+      "name": "End User",
+      "type": "external_entity",
+      "zone": "public",
+      "attributes": {
+        "authenticated": true
+      },
+      "source": ""
+    },
+    {
+      "id": "gateway",
+      "name": "API Gateway",
+      "type": "process",
+      "zone": "dmz",
+      "attributes": {
+        "internet_facing": true,
+        "authenticated": true,
+        "rate_limited": false,
+        "validates_input": false,
+        "authorization": true,
+        "audit_logging": true
+      },
+      "source": ""
+    },
+    {
+      "id": "svc_0",
+      "name": "Service A",
+      "type": "process",
+      "zone": "application",
+      "attributes": {
+        "internet_facing": false,
+        "authenticated": true,
+        "authorization": true,
+        "validates_input": false,
+        "audit_logging": true,
+        "handles_sensitive": true
+      },
+      "source": ""
+    },
+    {
+      "id": "svc_1",
+      "name": "Service B",
+      "type": "process",
+      "zone": "application",
+      "attributes": {
+        "internet_facing": false,
+        "authenticated": true,
+        "authorization": true,
+        "validates_input": false,
+        "audit_logging": true,
+        "handles_sensitive": true
+      },
+      "source": ""
+    },
+    {
+      "id": "svc_2",
+      "name": "Service C",
+      "type": "process",
+      "zone": "application",
+      "attributes": {
+        "internet_facing": false,
+        "authenticated": true,
+        "authorization": true,
+        "validates_input": false,
+        "audit_logging": true,
+        "handles_sensitive": true
+      },
+      "source": ""
+    },
+    {
+      "id": "db",
+      "name": "Primary Database",
+      "type": "data_store",
+      "zone": "data",
+      "attributes": {
+        "handles_sensitive": true,
+        "encrypted": false,
+        "integrity_protected": true,
+        "audit_logging": true,
+        "data": [
+          "credentials",
+          "pii"
+        ]
+      },
+      "source": ""
+    },
+    {
+      "id": "admin_console",
+      "name": "Admin Console",
+      "type": "process",
+      "zone": "trusted",
+      "attributes": {
+        "internet_facing": false,
+        "authenticated": true,
+        "authorization": true,
+        "audit_logging": true
+      },
+      "source": ""
+    }
+  ],
+  "flows": [
+    {
+      "id": "f_user_gw",
+      "source": "ext_user",
+      "dest": "gateway",
+      "name": "f_user_gw",
+      "data": [
+        "credentials",
+        "pii"
+      ],
+      "protocol": "http",
+      "authenticated": true,
+      "encrypted": false,
+      "attributes": {}
+    },
+    {
+      "id": "f_gw_svc0",
+      "source": "gateway",
+      "dest": "svc_0",
+      "name": "f_gw_svc0",
+      "data": [
+        "credentials",
+        "pii"
+      ],
+      "protocol": "http",
+      "authenticated": true,
+      "encrypted": false,
+      "attributes": {}
+    },
+    {
+      "id": "f_svc0_db",
+      "source": "svc_0",
+      "dest": "db",
+      "name": "f_svc0_db",
+      "data": [
+        "credentials",
+        "pii"
+      ],
+      "protocol": "http",
+      "authenticated": true,
+      "encrypted": false,
+      "attributes": {}
+    },
+    {
+      "id": "f_gw_svc1",
+      "source": "gateway",
+      "dest": "svc_1",
+      "name": "f_gw_svc1",
+      "data": [
+        "credentials",
+        "pii"
+      ],
+      "protocol": "http",
+      "authenticated": true,
+      "encrypted": false,
+      "attributes": {}
+    },
+    {
+      "id": "f_svc1_db",
+      "source": "svc_1",
+      "dest": "db",
+      "name": "f_svc1_db",
+      "data": [
+        "credentials",
+        "pii"
+      ],
+      "protocol": "http",
+      "authenticated": true,
+      "encrypted": false,
+      "attributes": {}
+    },
+    {
+      "id": "f_gw_svc2",
+      "source": "gateway",
+      "dest": "svc_2",
+      "name": "f_gw_svc2",
+      "data": [
+        "credentials",
+        "pii"
+      ],
+      "protocol": "http",
+      "authenticated": true,
+      "encrypted": false,
+      "attributes": {}
+    },
+    {
+      "id": "f_svc2_db",
+      "source": "svc_2",
+      "dest": "db",
+      "name": "f_svc2_db",
+      "data": [
+        "credentials",
+        "pii"
+      ],
+      "protocol": "http",
+      "authenticated": true,
+      "encrypted": false,
+      "attributes": {}
+    },
+    {
+      "id": "f_admin_db",
+      "source": "admin_console",
+      "dest": "db",
+      "name": "f_admin_db",
+      "data": [
+        "credentials",
+        "pii"
+      ],
+      "protocol": "http",
+      "authenticated": true,
+      "encrypted": false,
+      "attributes": {}
+    }
+  ],
+  "boundaries": []
+}

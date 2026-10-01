@@ -1,0 +1,26 @@
+flowchart LR
+  subgraph public[Public / Internet]
+    ext_user["End User|external_entity|auth=yes"]
+  end
+  subgraph dmz[Edge / DMZ]
+    gateway(["API Gateway|process|auth=yes;internet=yes;authz=yes;ratelimit=no;validate=no;audit=yes"])
+  end
+  subgraph application[Application]
+    svc_0(["Service A|process|auth=yes;sens=yes;authz=yes;validate=no;audit=yes"])
+    svc_1(["Service B|process|auth=yes;sens=yes;authz=yes;validate=no;audit=yes"])
+    svc_2(["Service C|process|auth=yes;sens=yes;authz=yes;validate=no;audit=yes"])
+  end
+  subgraph data[Data]
+    db[("Primary Database|data_store|enc=no;sens=yes;audit=yes")]
+  end
+  subgraph trusted[Trusted / Admin]
+    admin_console(["Admin Console|process|auth=yes;authz=yes;audit=yes"])
+  end
+  ext_user -->|credentials,pii / http| gateway
+  gateway -->|credentials,pii / http| svc_0
+  svc_0 -->|credentials,pii / http| db
+  gateway -->|credentials,pii / http| svc_1
+  svc_1 -->|credentials,pii / http| db
+  gateway -->|credentials,pii / http| svc_2
+  svc_2 -->|credentials,pii / http| db
+  admin_console -->|credentials,pii / http| db

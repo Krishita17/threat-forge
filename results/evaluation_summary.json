@@ -1,0 +1,11 @@
+{
+  "systems": 4,
+  "expected_total": 36,
+  "proposed_total": 49,
+  "true_positives": 36,
+  "false_negatives": 0,
+  "false_positives": 13,
+  "coverage": 1.0,
+  "precision": 0.735,
+  "noise_rate": 0.265
+}

@@ -1,0 +1,105 @@
+{
+  "name": "internal_tool",
+  "schema_version": "1.0",
+  "metadata": {},
+  "elements": [
+    {
+      "id": "ext_user",
+      "name": "End User",
+      "type": "external_entity",
+      "zone": "public",
+      "attributes": {
+        "authenticated": true
+      },
+      "source": ""
+    },
+    {
+      "id": "gateway",
+      "name": "API Gateway",
+      "type": "process",
+      "zone": "dmz",
+      "attributes": {
+        "internet_facing": true,
+        "authenticated": true,
+        "rate_limited": true,
+        "validates_input": true,
+        "authorization": false,
+        "audit_logging": false
+      },
+      "source": ""
+    },
+    {
+      "id": "svc_0",
+      "name": "Service A",
+      "type": "process",
+      "zone": "application",
+      "attributes": {
+        "internet_facing": false,
+        "authenticated": true,
+        "authorization": false,
+        "validates_input": true,
+        "audit_logging": false,
+        "handles_sensitive": false
+      },
+      "source": ""
+    },
+    {
+      "id": "db",
+      "name": "Primary Database",
+      "type": "data_store",
+      "zone": "data",
+      "attributes": {
+        "handles_sensitive": false,
+        "encrypted": true,
+        "integrity_protected": false,
+        "audit_logging": false,
+        "data": [
+          "config"
+        ]
+      },
+      "source": ""
+    }
+  ],
+  "flows": [
+    {
+      "id": "f_user_gw",
+      "source": "ext_user",
+      "dest": "gateway",
+      "name": "f_user_gw",
+      "data": [
+        "config"
+      ],
+      "protocol": "https",
+      "authenticated": true,
+      "encrypted": true,
+      "attributes": {}
+    },
+    {
+      "id": "f_gw_svc0",
+      "source": "gateway",
+      "dest": "svc_0",
+      "name": "f_gw_svc0",
+      "data": [
+        "config"
+      ],
+      "protocol": "https",
+      "authenticated": true,
+      "encrypted": true,
+      "attributes": {}
+    },
+    {
+      "id": "f_svc0_db",
+      "source": "svc_0",
+      "dest": "db",
+      "name": "f_svc0_db",
+      "data": [
+        "config"
+      ],
+      "protocol": "https",
+      "authenticated": true,
+      "encrypted": true,
+      "attributes": {}
+    }
+  ],
+  "boundaries": []
+}

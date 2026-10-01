@@ -1,0 +1,18 @@
+{
+  "secure_baseline": {
+    "expected_threats": 1,
+    "components": 7
+  },
+  "insecure_startup": {
+    "expected_threats": 19,
+    "components": 7
+  },
+  "partial_hardening": {
+    "expected_threats": 11,
+    "components": 7
+  },
+  "internal_tool": {
+    "expected_threats": 5,
+    "components": 4
+  }
+}

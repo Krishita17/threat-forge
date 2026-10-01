@@ -1,0 +1,243 @@
+# STRIDE knowledge base
+# ---------------------
+# Editable data that drives the grounded reasoner. Two parts:
+#
+#   1. `applicability` - which STRIDE categories apply to which DFD element type.
+#      This is the canonical STRIDE-per-element mapping (Microsoft methodology):
+#      external entities can be Spoofed and Repudiated; data stores suffer
+#      Tampering, Repudiation, Information disclosure and DoS; data flows suffer
+#      Tampering, Information disclosure and DoS; processes are subject to all six.
+#
+#   2. `patterns` - reusable threat patterns. Each pattern is keyed to a STRIDE
+#      category and a target element type, and fires only when its `when`
+#      conditions match the extracted model (e.g. a credential-bearing flow that
+#      crosses a trust boundary without TLS). Conditions reference attributes the
+#      analyzers populate, so the reasoner stays grounded in real structure.
+#
+# Paraphrased, framework-aligned content. STRIDE is Microsoft's taxonomy;
+# control ids (ASVS / NIST 800-53 / CWE) are genuine identifiers, requirement
+# text is paraphrased in frameworks/.
+
+categories:
+  S: Spoofing
+  T: Tampering
+  R: Repudiation
+  I: Information disclosure
+  D: Denial of service
+  E: Elevation of privilege
+
+applicability:
+  external_entity: [S, R]
+  process: [S, T, R, I, D, E]
+  data_store: [T, R, I, D]
+  data_flow: [T, I, D]
+
+# Each pattern:
+#   id, category, applies_to (element type), title, rationale (templated),
+#   when (list of conditions, all must hold), controls (ids), cwe (id),
+#   base_likelihood / base_impact (1-5), mitigation (paraphrased remediation).
+#
+# Condition grammar (evaluated against element/flow attributes + topology):
+#   element.<attr> == <value>        attribute equals
+#   element.<attr> != <value>
+#   element.<attr> is true|false
+#   flow.<attr> is true|false
+#   flow.crosses_boundary            flow endpoints in different zones
+#   flow.carries:<token>             <token> present in flow.data
+#   element.zone == <zone>
+#   element.internet_facing          shorthand for internet_facing is true
+patterns:
+  # ---- Spoofing -----------------------------------------------------------
+  - id: S-EXT-AUTHN
+    category: S
+    applies_to: external_entity
+    title: "Unauthenticated external actor can impersonate a legitimate user"
+    rationale: "{name} is an external entity whose requests are not strongly authenticated, so an attacker can impersonate it (e.g. credential stuffing, forged identity)."
+    when:
+      - element.authenticated is false
+    controls: [ASVS-2.1.1, NIST-IA-2, NIST-IA-5]
+    cwe: CWE-287
+    base_likelihood: 4
+    base_impact: 4
+    mitigation: "Require strong authentication for this actor (MFA where feasible), enforce password/credential policy, and rate-limit/lock out credential-stuffing attempts."
+
+  - id: S-PROC-WEAKAUTH
+    category: S
+    applies_to: process
+    title: "Process accepts requests without verifying caller identity"
+    rationale: "{name} handles requests but does not authenticate its caller, allowing a spoofed client to act as a trusted one."
+    when:
+      - element.authenticated is false
+      - element.internet_facing
+    controls: [ASVS-2.1.1, NIST-IA-2]
+    cwe: CWE-306
+    base_likelihood: 4
+    base_impact: 4
+    mitigation: "Authenticate every request to this process; reject or challenge unauthenticated callers at the trust boundary."
+
+  # ---- Tampering ----------------------------------------------------------
+  - id: T-FLOW-NOTLS
+    category: T
+    applies_to: data_flow
+    title: "Data in transit can be tampered with across a trust boundary"
+    rationale: "{name} crosses a trust boundary without transport integrity (no TLS/encryption), so an on-path attacker can modify the data."
+    when:
+      - flow.crosses_boundary
+      - flow.encrypted is false
+    controls: [ASVS-9.1.1, NIST-SC-8]
+    cwe: CWE-319
+    base_likelihood: 3
+    base_impact: 4
+    mitigation: "Encrypt and integrity-protect the channel (TLS 1.2+); reject plaintext transport for any boundary-crossing flow."
+
+  - id: T-STORE-INTEGRITY
+    category: T
+    applies_to: data_store
+    title: "Stored data can be modified without detection"
+    rationale: "{name} persists data without integrity controls or change auditing, so unauthorized modification may go unnoticed."
+    when:
+      - element.integrity_protected is false
+    controls: [ASVS-1.9.2, NIST-SI-7]
+    cwe: CWE-345
+    base_likelihood: 2
+    base_impact: 4
+    mitigation: "Apply write authorization, integrity checks (hashing/signing) and tamper-evident audit logging to the store."
+
+  - id: T-PROC-INPUT
+    category: T
+    applies_to: process
+    title: "Untrusted input reaches the process without validation"
+    rationale: "{name} receives data from a less-trusted zone and may process it without validation, enabling injection or state corruption."
+    when:
+      - element.validates_input is false
+    controls: [ASVS-5.1.3, ASVS-5.3.4]
+    cwe: CWE-20
+    base_likelihood: 3
+    base_impact: 4
+    mitigation: "Validate and canonicalize all input at the boundary; use parameterized queries and context-aware output encoding."
+
+  # ---- Repudiation --------------------------------------------------------
+  - id: R-PROC-LOG
+    category: R
+    applies_to: process
+    title: "Security-relevant actions are not auditable"
+    rationale: "{name} performs security-relevant actions but does not emit tamper-resistant audit logs, so actors can deny having acted."
+    when:
+      - element.audit_logging is false
+    controls: [ASVS-7.1.3, NIST-AU-2, NIST-AU-9]
+    cwe: CWE-778
+    base_likelihood: 3
+    base_impact: 3
+    mitigation: "Log security-relevant events with user identity, timestamp and outcome to an append-only, access-controlled store."
+
+  - id: R-STORE-LOG
+    category: R
+    applies_to: data_store
+    title: "Writes to the store are not attributable"
+    rationale: "{name} does not record who changed what, so repudiation of data changes is possible."
+    when:
+      - element.audit_logging is false
+    controls: [ASVS-7.1.3, NIST-AU-2]
+    cwe: CWE-778
+    base_likelihood: 2
+    base_impact: 3
+    mitigation: "Record attributable, append-only change history for the store and protect it from the accounts that can write data."
+
+  # ---- Information disclosure ---------------------------------------------
+  - id: I-FLOW-PLAINTEXT
+    category: I
+    applies_to: data_flow
+    title: "Sensitive data is exposed in transit"
+    rationale: "{name} carries sensitive data ({data}) across a boundary without encryption, so it can be intercepted."
+    when:
+      - flow.crosses_boundary
+      - flow.encrypted is false
+      - flow.carries_sensitive
+    controls: [ASVS-9.1.1, ASVS-8.3.1, NIST-SC-8]
+    cwe: CWE-319
+    base_likelihood: 3
+    base_impact: 5
+    mitigation: "Encrypt the channel end-to-end; minimize sensitive fields in transit and avoid placing them in URLs or logs."
+
+  - id: I-STORE-ATREST
+    category: I
+    applies_to: data_store
+    title: "Sensitive data at rest is not encrypted"
+    rationale: "{name} stores sensitive data ({data}) without encryption at rest, exposing it if the store is compromised."
+    when:
+      - element.handles_sensitive
+      - element.encrypted is false
+    controls: [ASVS-8.3.4, NIST-SC-28]
+    cwe: CWE-311
+    base_likelihood: 3
+    base_impact: 5
+    mitigation: "Encrypt sensitive data at rest, manage keys separately from data, and restrict decrypt access to least privilege."
+
+  - id: I-PROC-ERRORS
+    category: I
+    applies_to: process
+    title: "Verbose errors or responses leak internal detail"
+    rationale: "{name} is internet-facing and may return verbose errors/stack traces that disclose internal structure to attackers."
+    when:
+      - element.internet_facing
+    controls: [ASVS-7.4.1, ASVS-14.3.2]
+    cwe: CWE-209
+    base_likelihood: 3
+    base_impact: 2
+    mitigation: "Return generic error responses to clients; log detail server-side only; disable debug mode in production."
+
+  # ---- Denial of service --------------------------------------------------
+  - id: D-PROC-RATELIMIT
+    category: D
+    applies_to: process
+    title: "No rate limiting on an internet-facing process"
+    rationale: "{name} is internet-facing without rate limiting or quotas, so it can be overwhelmed by request floods."
+    when:
+      - element.internet_facing
+      - element.rate_limited is false
+    controls: [ASVS-11.1.4, NIST-SC-5]
+    cwe: CWE-770
+    base_likelihood: 3
+    base_impact: 3
+    mitigation: "Apply rate limiting, request quotas, timeouts and resource caps; place the service behind an edge/DoS-protection layer."
+
+  - id: D-STORE-EXHAUST
+    category: D
+    applies_to: data_store
+    title: "Unbounded growth or connection exhaustion in the store"
+    rationale: "{name} can be driven to resource exhaustion (storage, connections) by unbounded writes from upstream processes."
+    when:
+      - element.handles_sensitive
+    controls: [NIST-SC-5]
+    cwe: CWE-770
+    base_likelihood: 2
+    base_impact: 3
+    mitigation: "Enforce connection pooling limits, quotas and input size caps upstream; monitor capacity and set alerts."
+
+  # ---- Elevation of privilege --------------------------------------------
+  - id: E-PROC-AUTHZ
+    category: E
+    applies_to: process
+    title: "Missing or weak authorization enables privilege escalation"
+    rationale: "{name} does not enforce authorization checks per action, so an authenticated low-privilege actor may perform privileged operations."
+    when:
+      - element.authorization is false
+    controls: [ASVS-4.1.1, ASVS-4.1.3, NIST-AC-3, NIST-AC-6]
+    cwe: CWE-285
+    base_likelihood: 3
+    base_impact: 5
+    mitigation: "Enforce server-side, deny-by-default authorization on every privileged action; apply least privilege and verify object-level access."
+
+  - id: E-PROC-ADMIN
+    category: E
+    applies_to: process
+    title: "Internet-facing path can reach privileged/admin functionality"
+    rationale: "{name} is internet-facing and sits on a path toward trusted/admin functions; a flaw here can be leveraged to reach privileged operations."
+    when:
+      - element.internet_facing
+      - element.reaches_trusted
+    controls: [ASVS-4.1.1, NIST-AC-6]
+    cwe: CWE-269
+    base_likelihood: 2
+    base_impact: 5
+    mitigation: "Segment admin functionality behind separate authentication and network controls; never expose privileged operations on the public path."

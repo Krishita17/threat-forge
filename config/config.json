@@ -1,0 +1,12 @@
+{
+  "reasoner": {
+    "backend": "stub",
+    "_backend_options": ["stub", "local-llm", "ungrounded-stub"],
+    "base_url": "http://localhost:11434",
+    "model": "llama3",
+    "timeout": 30.0
+  },
+  "language": "python",
+  "frameworks": ["ASVS", "NIST", "CWE"],
+  "seed": 7
+}

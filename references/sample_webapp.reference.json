@@ -1,0 +1,18 @@
+{
+  "_about": "Hand-authored 'gold' STRIDE threat model for the bundled sample web app (samples/py_webapp). Authored by a human (Krishita Sanjay Choksi) as an expert baseline to evaluate ThreatForge's output against. Matching at eval time is by (component, stride) key. This file is reference data, not generated.",
+  "system": "Sample Web App",
+  "components": ["End User", "Sample Web App Service", "SQLite Database", "Payment Provider"],
+  "threats": [
+    {"component": "End User", "stride": "S", "note": "Login accepts a password with no MFA or lockout; credential stuffing can impersonate a user."},
+    {"component": "Sample Web App Service", "stride": "S", "note": "Weak password-only auth on /login; spoofable."},
+    {"component": "Sample Web App Service", "stride": "T", "note": "/profile and /pay accept JSON input with no validation layer."},
+    {"component": "Sample Web App Service", "stride": "R", "note": "No audit logging of logins or payments; actions can be repudiated."},
+    {"component": "Sample Web App Service", "stride": "I", "note": "Internet-facing Flask may leak stack traces if debug is on."},
+    {"component": "Sample Web App Service", "stride": "D", "note": "No rate limiting on /login enables brute-force / flooding."},
+    {"component": "Sample Web App Service", "stride": "E", "note": "/profile/<id> has no per-object authorization; any caller can read any profile (IDOR)."},
+    {"component": "SQLite Database", "stride": "T", "note": "No integrity controls / change auditing on the users table."},
+    {"component": "SQLite Database", "stride": "R", "note": "Writes are not attributable."},
+    {"component": "SQLite Database", "stride": "I", "note": "Passwords/PII stored without encryption at rest."},
+    {"component": "SQLite Database", "stride": "D", "note": "Unbounded writes could exhaust the store."}
+  ]
+}

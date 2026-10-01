@@ -1,0 +1,97 @@
+[
+  {
+    "component": "End User",
+    "stride": "S",
+    "weakness": "unauthenticated_entity"
+  },
+  {
+    "component": "API Gateway",
+    "stride": "D",
+    "weakness": "no_rate_limit"
+  },
+  {
+    "component": "API Gateway",
+    "stride": "S",
+    "weakness": "unauthenticated_endpoint"
+  },
+  {
+    "component": "API Gateway",
+    "stride": "I",
+    "weakness": "verbose_errors"
+  },
+  {
+    "component": "Service A",
+    "stride": "T",
+    "weakness": "no_input_validation"
+  },
+  {
+    "component": "Service A",
+    "stride": "E",
+    "weakness": "no_authorization"
+  },
+  {
+    "component": "Service A",
+    "stride": "R",
+    "weakness": "no_audit_logging_proc"
+  },
+  {
+    "component": "Service B",
+    "stride": "T",
+    "weakness": "no_input_validation"
+  },
+  {
+    "component": "Service B",
+    "stride": "E",
+    "weakness": "no_authorization"
+  },
+  {
+    "component": "Service B",
+    "stride": "R",
+    "weakness": "no_audit_logging_proc"
+  },
+  {
+    "component": "Primary Database",
+    "stride": "I",
+    "weakness": "no_encryption_at_rest"
+  },
+  {
+    "component": "Primary Database",
+    "stride": "T",
+    "weakness": "no_store_integrity"
+  },
+  {
+    "component": "Primary Database",
+    "stride": "R",
+    "weakness": "no_store_audit"
+  },
+  {
+    "component": "API Gateway",
+    "stride": "E",
+    "weakness": "admin_on_public_path"
+  },
+  {
+    "component": "API Gateway",
+    "stride": "T",
+    "weakness": "plaintext_transport"
+  },
+  {
+    "component": "Service A",
+    "stride": "I",
+    "weakness": "plaintext_transport"
+  },
+  {
+    "component": "Payment Provider",
+    "stride": "T",
+    "weakness": "plaintext_transport"
+  },
+  {
+    "component": "Payment Provider",
+    "stride": "I",
+    "weakness": "plaintext_transport"
+  },
+  {
+    "component": "Service B",
+    "stride": "I",
+    "weakness": "plaintext_transport"
+  }
+]

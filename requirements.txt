@@ -1,0 +1,15 @@
+# ThreatForge runtime dependencies.
+# The core pipeline (analysis, model, STRIDE reasoner, mitigation mapper, exports)
+# runs on the Python standard library alone. The two dependencies below are only
+# needed for the data-driven parts:
+#   - PyYAML: load the editable STRIDE knowledge base (src/stride/stride_kb.yaml)
+#   - matplotlib + numpy: regenerate the charts in figures/
+# A real local LLM backend is optional and needs no extra Python packages
+# (it talks to an OpenAI-compatible HTTP endpoint via the stdlib).
+
+PyYAML>=6.0
+matplotlib>=3.7
+numpy>=1.24
+
+# Development / test only:
+pytest>=7.0
