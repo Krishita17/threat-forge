@@ -42,7 +42,8 @@ def _sample_threats():
     diagram = os.path.join(ROOT, "samples", "diagrams", "py_webapp.mmd")
     diagram = diagram if os.path.exists(diagram) else None
     model, threats = run_pipeline("Sample Web App", repo_path=code,
-                                  diagram_path=diagram, backend_config={"backend": "stub"})
+                                  diagram_path=diagram, backend_config={"backend": "stub"},
+                                  privacy=True)
     return model, threats
 
 
@@ -170,6 +171,39 @@ def fig_ablation(ablation):
     _save(fig, "ablation.png")
 
 
+def fig_attack_paths(model, threats):
+    from ..pipeline import build_attack_paths
+    paths = build_attack_paths(model, threats)
+    if not paths:
+        return
+    labels = [f"{p.id}: {p.entry[:12]}→{p.target[:12]}" for p in paths]
+    risks = [p.total_risk for p in paths]
+    confs = [p.confidence for p in paths]
+    fig, ax = plt.subplots(figsize=(8, 0.6 * len(paths) + 1.5))
+    colors = [_PALETTE[2] if c < 0.5 else _PALETTE[0] for c in confs]
+    ax.barh(labels[::-1], risks[::-1], color=colors[::-1])
+    for i, (r, c) in enumerate(zip(risks[::-1], confs[::-1])):
+        ax.text(r + 0.5, i, f"conf {c:.2f}", va="center", fontsize=9)
+    ax.set_xlabel("Total path risk (sum of step risks)")
+    ax.set_title("Grounded multi-step attack paths (ATT&CK-mapped)")
+    _save(fig, "attack_paths.png")
+
+
+def fig_framework_coverage(threats):
+    """How threats split across STRIDE vs LINDDUN and across OWASP Top 10."""
+    frameworks = {}
+    for t in threats:
+        frameworks[t.framework] = frameworks.get(t.framework, 0) + 1
+    fig, ax = plt.subplots(figsize=(6, 4))
+    ax.bar(list(frameworks.keys()), list(frameworks.values()),
+           color=[_PALETTE[0], _PALETTE[1]][:len(frameworks)])
+    ax.set_ylabel("Threats")
+    ax.set_title("Threats by framework (STRIDE security + LINDDUN privacy)")
+    for i, v in enumerate(frameworks.values()):
+        ax.text(i, v + 0.2, str(v), ha="center")
+    _save(fig, "framework_coverage.png")
+
+
 def _save(fig, name):
     os.makedirs(FIG, exist_ok=True)
     fig.tight_layout()
@@ -207,6 +241,8 @@ def generate_all_figures():
     fig_coverage_by_system(eval_rows)
     fig_precision_noise(eval_rows)
     fig_ablation(ablation)
+    fig_attack_paths(model, threats)
+    fig_framework_coverage(threats)
     print("All figures written to figures/")
 
 

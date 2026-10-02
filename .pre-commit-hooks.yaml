@@ -1,0 +1,28 @@
+# pre-commit hook definitions for ThreatForge.
+# Add to your repo's .pre-commit-config.yaml:
+#
+#   repos:
+#     - repo: https://github.com/Krishita17/threat-forge
+#       rev: main
+#       hooks:
+#         - id: threatforge-gate
+#
+# The gate hook drafts a threat model for the repo and fails the commit if a new
+# threat at or above the fail level appears that is not in .threatforge.baseline.json.
+- id: threatforge-gate
+  name: ThreatForge threat-model gate
+  description: "Fail the commit on new high-risk threats not in the accepted baseline."
+  entry: python -m src.cli gate --code .
+  language: python
+  additional_dependencies: ["PyYAML>=6.0"]
+  pass_filenames: false
+  always_run: true
+
+- id: threatforge-report
+  name: ThreatForge threat model (report only)
+  description: "Draft a STRIDE threat model for the repo (non-blocking)."
+  entry: python -m src.cli report --code . --out threatforge-out
+  language: python
+  additional_dependencies: ["PyYAML>=6.0", "matplotlib>=3.7", "numpy>=1.24"]
+  pass_filenames: false
+  always_run: true

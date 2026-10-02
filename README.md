@@ -193,12 +193,81 @@ Every run emits machine-readable models so the draft flows onward:
 **SARIF** (GitHub), **pytm** (threats-as-code), **OWASP Threat Dragon** (GUI),
 a **GitHub-native Mermaid DFD**, native **JSON**, and a **shields.io badge**.
 
-### 6. Python *and* JavaScript/TypeScript
+### 6. Python *and* JavaScript/TypeScript — and infrastructure-as-code
 
 The code analyzer auto-detects the language. Python uses AST analysis; JS/TS uses
 `package.json` + source heuristics (Express/Fastify/Nest, pg/mongoose/redis/prisma,
-axios/got, passport/jwt, zod/joi, rate limiters, loggers) — same model, same
-pipeline, so recovery generalizes across stacks.
+axios/got, passport/jwt, zod/joi, rate limiters, loggers). An **IaC analyzer**
+(`--iac`) models **Terraform** and **Kubernetes** — public buckets, security
+groups open to `0.0.0.0/0`, publicly-accessible databases, `LoadBalancer`
+services, ingress edges, secrets — so cloud teams get a model too. Same DFD, same
+pipeline across every input.
+
+## What makes it different
+
+These are the features no other open threat-modeling tool ships — built with the
+same grounding + human-review discipline as the core, so they inform judgment
+rather than replace it.
+
+### Attack-path chaining with MITRE ATT&CK
+
+Every other tool emits a flat per-component list. ThreatForge chains threats along
+the **real data-flow graph** into multi-step attack paths and maps each step to a
+MITRE ATT&CK technique. Grounded: every hop must carry a real threat from the
+register, paths are ranked by severity, and low-confidence paths are flagged — an
+attack graph full of implausible paths loses trust faster than none.
+
+![Attack paths](figures/attack_paths.png)
+
+```
+AP-002: End User → SQLite Database   (risk 47, confidence 0.61)
+  1. End User                Spoofing   T1110 Brute Force          [Credential Access]
+  2. Sample Web App Service  Spoofing   T1078 Valid Accounts       [Initial Access]
+  3. SQLite Database         Info. disc. T1213 Data from Repos.    [Collection]
+```
+
+```bash
+make attack     # or: python -m src.cli attack --code . 
+```
+
+### Threat → auto-generated verification (pytest + Sigma)
+
+Closes the loop: for each threat ThreatForge emits a **pytest** stub that encodes
+the mitigation as an assertion, and a **Sigma** detection-rule skeleton for the
+attack. Tests start `@pytest.mark.skip` until a human wires them to the system —
+a generated test that silently passes is worse than none.
+
+```bash
+make verify     # writes reports/test_*_security.py and reports/*.sigma.yml
+```
+
+### LINDDUN privacy threats, alongside STRIDE
+
+A second framework for the GDPR/privacy crowd: run the **LINDDUN** privacy sweep
+(Linkability, Identifiability, Disclosure, Unawareness, Non-compliance…) with the
+same grounded reasoner. Privacy threats map to GDPR articles and NIST privacy
+controls.
+
+![Frameworks](figures/framework_coverage.png)
+
+```bash
+make privacy    # STRIDE security + LINDDUN privacy in one register
+```
+
+### Trust you can audit: traceability, confidence, and review flags
+
+- **Traceability** — each threat records the `file:line` (or model element) that
+  grounded it, so a reviewer can verify the evidence instantly.
+- **Calibrated confidence** — every threat carries a confidence; heuristic
+  patterns that assume an absent control score lower.
+- **Needs-review flag** — high-risk *or* low-confidence threats are explicitly
+  flagged for mandatory human review.
+
+### Compliance crosswalk (SOC 2 / ISO 27001 / PCI DSS)
+
+Every mapped control is also crosswalked to **SOC 2** Trust Services Criteria,
+**ISO/IEC 27001:2022** Annex A, and **PCI DSS v4.0** — so the same register serves
+the GRC audience, not just engineers.
 
 ## Results
 
@@ -289,6 +358,9 @@ stages:
 make data            # generate synthetic systems + matching diagrams + ground truth
 make model           # summarize the recovered model + inferred trust boundaries
 make reason          # run the grounded per-component STRIDE sweep
+make attack          # chain threats into MITRE ATT&CK-mapped attack paths
+make verify          # generate security tests (pytest) + Sigma detection rules
+make privacy         # STRIDE security + LINDDUN privacy sweep
 make report          # full threat-model report + exports (sample app)
 make evaluate        # coverage / precision / noise on the synthetic catalog
 make reference-eval  # Tier-2: tool output vs a hand-authored expert reference
@@ -307,8 +379,9 @@ Run on your own inputs (code, a diagram, or both):
     --code path/to/repo --diagram path/to/diagram.mmd --out reports/
 ```
 
-Either input alone works; together they corroborate. Outputs land in `reports/`:
-a Markdown threat model, an interactive HTML report, the DFD (SVG + Mermaid), and
+Any one input works; combine them and they corroborate. Outputs land in
+`reports/`: a Markdown threat model, an interactive HTML report, the DFD (SVG +
+Mermaid), attack-path graph JSON, generated pytest + Sigma rules, and
 machine-readable exports (`*.threatforge.json`, SARIF, a pytm script, a Threat
 Dragon-importable model, and a shields.io badge).
 
@@ -316,13 +389,16 @@ Dragon-importable model, and a shields.io badge).
 
 | Stage | Module | What it does |
 | --- | --- | --- |
-| Code analyzer | [`src/analyze_code`](src/analyze_code) | Static AST/import analysis → processes, data stores, external entities, entrypoints (Python first). |
+| Code analyzer | [`src/analyze_code`](src/analyze_code) | Static AST/import analysis → processes, data stores, external entities, entrypoints (Python + JS/TS). |
 | Diagram analyzer | [`src/analyze_diagram`](src/analyze_diagram) | Parses Mermaid/DFD into the same element/connector vocabulary. |
+| IaC analyzer | [`src/analyze_iac`](src/analyze_iac) | Terraform + Kubernetes → cloud components, exposure, trust zones. |
 | System-model builder | [`src/model`](src/model) | Fuses inputs into one normalized DFD and **infers trust boundaries**. |
 | STRIDE KB | [`src/stride`](src/stride) | Per-element applicability + matchable threat patterns, as editable YAML. |
 | Grounded reasoner | [`src/reason`](src/reason) | Per-component STRIDE sweep constrained to the model + KB; pluggable backend. |
-| Mitigation mapper | [`src/mitigate`](src/mitigate) | Threat → mitigation → named control + likelihood × impact risk. |
-| Report generator | [`src/report`](src/report) | DFD SVG, threat register, heatmap, exports (JSON / pytm / Threat Dragon). |
+| Mitigation mapper | [`src/mitigate`](src/mitigate) | Threat → mitigation → control + OWASP Top 10 + compliance + ATT&CK + risk. |
+| Attack grapher | [`src/attack`](src/attack) | Chains threats into ATT&CK-mapped multi-step attack paths. |
+| Verification | [`src/verify`](src/verify) | Generates pytest security tests + Sigma detection rules per threat. |
+| Report generator | [`src/report`](src/report) | DFD, register, heatmap, HTML, SARIF, exports, diff/baseline/gate. |
 
 ## Data
 

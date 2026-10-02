@@ -8,7 +8,7 @@ PY ?= ./.venv/bin/python
 PIP ?= ./.venv/bin/pip
 SEED ?= 7
 
-.PHONY: help setup data analyze model reason report sample \
+.PHONY: help setup data analyze model reason attack verify privacy report sample \
         evaluate reference-eval ablation figures baseline gate test all clean
 
 SAMPLE_ARGS = --name "Sample Web App" --code samples/py_webapp --diagram samples/diagrams/py_webapp.mmd
@@ -19,6 +19,9 @@ help:
 	@echo "  make data            generate synthetic systems + matching diagrams"
 	@echo "  make model           summarize the recovered model for the sample app"
 	@echo "  make reason          run the grounded STRIDE sweep on the sample app"
+	@echo "  make attack          chain threats into MITRE ATT&CK attack paths"
+	@echo "  make verify          generate security tests (pytest) + Sigma rules"
+	@echo "  make privacy         run the STRIDE + LINDDUN (privacy) sweep"
 	@echo "  make report          full threat-model report + exports (sample app)"
 	@echo "  make sample          alias for 'report' on the bundled sample app"
 	@echo "  make evaluate        coverage/precision/noise on the synthetic catalog"
@@ -50,6 +53,15 @@ model:
 reason:
 	$(PY) -m src.cli reason --name "Sample Web App" \
 		--code samples/py_webapp --diagram samples/diagrams/py_webapp.mmd
+
+attack:
+	$(PY) -m src.cli attack $(SAMPLE_ARGS)
+
+verify:
+	$(PY) -m src.cli verify $(SAMPLE_ARGS)
+
+privacy:
+	$(PY) -m src.cli reason $(SAMPLE_ARGS) --privacy
 
 report sample:
 	$(PY) -m src.cli sample

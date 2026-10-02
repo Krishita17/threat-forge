@@ -184,6 +184,7 @@ patterns:
     cwe: CWE-209
     base_likelihood: 3
     base_impact: 2
+    confidence: 0.5
     mitigation: "Return generic error responses to clients; log detail server-side only; disable debug mode in production."
 
   # ---- Denial of service --------------------------------------------------
@@ -212,6 +213,7 @@ patterns:
     cwe: CWE-770
     base_likelihood: 2
     base_impact: 3
+    confidence: 0.55
     mitigation: "Enforce connection pooling limits, quotas and input size caps upstream; monitor capacity and set alerts."
 
   # ---- Elevation of privilege --------------------------------------------

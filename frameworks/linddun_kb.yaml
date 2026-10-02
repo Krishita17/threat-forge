@@ -1,0 +1,114 @@
+# LINDDUN privacy knowledge base
+# -------------------------------
+# The privacy counterpart to STRIDE. Same structure as stride_kb.yaml so the same
+# grounded reasoner runs over it. LINDDUN is a DFD-based privacy threat taxonomy;
+# categories and their per-element applicability follow the LINDDUN methodology.
+# Requirement text referenced by controls is paraphrased (genuine control/article
+# ids). Author: Krishita Sanjay Choksi.
+
+framework: LINDDUN
+
+categories:
+  L: Linkability
+  I: Identifiability
+  NR: Non-repudiation (privacy)
+  DT: Detectability
+  DD: Disclosure of information
+  U: Unawareness
+  NC: Non-compliance
+
+applicability:
+  external_entity: [U]
+  process: [L, I, NR, DD, NC]
+  data_store: [L, I, DT, DD, NC]
+  data_flow: [DD, DT]
+
+patterns:
+  - id: L-STORE-LINK
+    category: L
+    applies_to: data_store
+    title: "Records are linkable across contexts (no pseudonymisation)"
+    rationale: "{name} stores personal data without pseudonymisation, so records about the same person can be linked across contexts."
+    when:
+      - element.handles_sensitive
+      - element.pseudonymized is false
+    controls: [GDPR-ART25, NIST-PT-3]
+    cwe: ""
+    base_likelihood: 3
+    base_impact: 3
+    confidence: 0.6
+    mitigation: "Pseudonymise or tokenise identifiers at rest; separate linkable keys from personal data and restrict re-identification."
+
+  - id: I-STORE-IDENT
+    category: I
+    applies_to: data_store
+    title: "Individuals are identifiable (no data minimisation/anonymisation)"
+    rationale: "{name} retains directly identifying personal data without minimisation or anonymisation, increasing re-identification risk."
+    when:
+      - element.handles_sensitive
+      - element.anonymized is false
+    controls: [GDPR-ART5-MIN, NIST-PT-3]
+    cwe: ""
+    base_likelihood: 3
+    base_impact: 4
+    confidence: 0.6
+    mitigation: "Minimise collected fields, anonymise or aggregate where possible, and avoid storing direct identifiers you do not need."
+
+  - id: DD-FLOW-DISCLOSE
+    category: DD
+    applies_to: data_flow
+    title: "Personal data is disclosed across a boundary"
+    rationale: "{name} carries personal data ({data}) across a trust boundary, exposing it to parties that may not need it."
+    when:
+      - flow.crosses_boundary
+      - flow.carries_sensitive
+    controls: [GDPR-ART5-MIN, NIST-PT-3]
+    cwe: ""
+    base_likelihood: 3
+    base_impact: 4
+    confidence: 0.7
+    mitigation: "Share the minimum personal data necessary across the boundary; apply purpose limitation and a data-processing agreement for third parties."
+
+  - id: NC-STORE-RETAIN
+    category: NC
+    applies_to: data_store
+    title: "No retention/governance controls on personal data (non-compliance)"
+    rationale: "{name} holds personal data without evidence of retention limits or access auditing, risking non-compliance with storage-limitation duties."
+    when:
+      - element.handles_sensitive
+      - element.audit_logging is false
+    controls: [GDPR-ART5-STORAGE, NIST-SI-12]
+    cwe: ""
+    base_likelihood: 2
+    base_impact: 4
+    confidence: 0.55
+    mitigation: "Define and enforce retention/deletion schedules, log access to personal data, and document the lawful basis and purpose."
+
+  - id: U-EXT-CONSENT
+    category: U
+    applies_to: external_entity
+    title: "Data subject may be unaware of processing (no consent signal)"
+    rationale: "{name} is a data subject whose awareness/consent for processing is not represented in the system."
+    when:
+      - element.consent is false
+    controls: [GDPR-ART13]
+    cwe: ""
+    base_likelihood: 3
+    base_impact: 3
+    confidence: 0.5
+    mitigation: "Provide clear processing notices and capture a lawful basis/consent; expose data-subject rights (access, erasure)."
+
+  - id: DD-PROC-OVERCOLLECT
+    category: DD
+    applies_to: process
+    title: "Process may over-collect or over-expose personal data"
+    rationale: "{name} handles personal data; without purpose limitation it can collect or expose more than necessary."
+    when:
+      - element.handles_sensitive
+      - element.authorization is false
+    controls: [GDPR-ART5-MIN, NIST-PT-3]
+    cwe: ""
+    base_likelihood: 2
+    base_impact: 3
+    confidence: 0.55
+    mitigation: "Apply purpose limitation and least-privilege access to personal data; redact fields not required for the operation."

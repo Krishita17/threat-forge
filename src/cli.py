@@ -65,7 +65,7 @@ def cmd_data(args):
 
 
 def cmd_analyze(args):
-    model = analyze_inputs(args.name, repo_path=args.code, diagram_path=args.diagram, language=args.lang)
+    model = analyze_inputs(args.name, repo_path=args.code, diagram_path=args.diagram, language=args.lang, iac_path=args.iac)
     text = model.to_json()
     if args.out:
         with open(args.out, "w", encoding="utf-8") as fh:
@@ -76,7 +76,7 @@ def cmd_analyze(args):
 
 
 def cmd_model(args):
-    model = analyze_inputs(args.name, repo_path=args.code, diagram_path=args.diagram, language=args.lang)
+    model = analyze_inputs(args.name, repo_path=args.code, diagram_path=args.diagram, language=args.lang, iac_path=args.iac)
     print(f"System: {model.name}")
     print(f"  elements: {len([e for e in model.elements])}")
     print(f"  flows: {len(model.flows)}")
@@ -87,8 +87,8 @@ def cmd_model(args):
 
 def cmd_reason(args):
     cfg = load_config()
-    model = analyze_inputs(args.name, repo_path=args.code, diagram_path=args.diagram, language=args.lang)
-    threats = run_on_model(model, backend_config=cfg["reasoner"])
+    model = analyze_inputs(args.name, repo_path=args.code, diagram_path=args.diagram, language=args.lang, iac_path=args.iac)
+    threats = run_on_model(model, backend_config=cfg["reasoner"], privacy=args.privacy)
     print(f"{len(threats)} threats identified:")
     for t in threats:
         print(f"  [{t.id}] {t.stride_name:22} {t.component:20} risk {t.risk:2} ({t.risk_level})")
@@ -99,6 +99,7 @@ def cmd_report(args):
     model, threats = run_pipeline(
         args.name, repo_path=args.code, diagram_path=args.diagram,
         backend_config=cfg["reasoner"], language=args.lang,
+        iac_path=args.iac, privacy=args.privacy,
     )
     out_dir = args.out or _p("reports")
     paths = generate_report(model, threats, out_dir, slug=args.slug)
@@ -115,7 +116,7 @@ def cmd_sample(args):
     diagram = diagram if os.path.exists(diagram) else None
     model, threats = run_pipeline(
         "Sample Web App", repo_path=code, diagram_path=diagram,
-        backend_config=cfg["reasoner"],
+        backend_config=cfg["reasoner"], privacy=True,
     )
     out_dir = _p("reports")
     paths = generate_report(model, threats, out_dir, slug="sample_webapp")
@@ -140,6 +141,44 @@ def cmd_reference_eval(args):
     run_reference_eval()
 
 
+def cmd_attack(args):
+    cfg = load_config()
+    from .pipeline import build_attack_paths  # noqa: E402
+    model, threats = run_pipeline(args.name, repo_path=args.code, diagram_path=args.diagram,
+                                  backend_config=cfg["reasoner"], language=args.lang,
+                                  iac_path=args.iac, privacy=args.privacy)
+    paths = build_attack_paths(model, threats)
+    if not paths:
+        print("No grounded multi-step attack paths found.")
+        return
+    print(f"{len(paths)} grounded attack path(s):")
+    for p in paths:
+        flag = "  [needs review]" if p.needs_review else ""
+        print(f"\n{p.id}: {p.entry} -> {p.target}  "
+              f"(risk {p.total_risk}, confidence {p.confidence:.2f}){flag}")
+        for i, s in enumerate(p.steps, 1):
+            print(f"  {i}. {s.component:24} {s.stride}  {s.attack_technique or '-'}  [{s.tactic}]")
+
+
+def cmd_verify(args):
+    cfg = load_config()
+    from .verify.generate import generate_pytest, generate_sigma_yaml  # noqa: E402
+    _, threats = run_pipeline(args.name, repo_path=args.code, diagram_path=args.diagram,
+                              backend_config=cfg["reasoner"], language=args.lang,
+                              iac_path=args.iac, privacy=args.privacy)
+    out_dir = args.out or _p("reports")
+    os.makedirs(out_dir, exist_ok=True)
+    slug = "".join(c if c.isalnum() else "_" for c in args.name.lower())
+    tests = os.path.join(out_dir, f"test_{slug}_security.py")
+    sigma = os.path.join(out_dir, f"{slug}.sigma.yml")
+    with open(tests, "w", encoding="utf-8") as fh:
+        fh.write(generate_pytest(threats))
+    with open(sigma, "w", encoding="utf-8") as fh:
+        fh.write(generate_sigma_yaml(threats))
+    print(f"Generated security tests -> {os.path.relpath(tests, ROOT)}")
+    print(f"Generated Sigma rules    -> {os.path.relpath(sigma, ROOT)}")
+
+
 def _default_baseline():
     return _p(".threatforge.baseline.json")
 
@@ -147,7 +186,8 @@ def _default_baseline():
 def cmd_baseline(args):
     cfg = load_config()
     _, threats = run_pipeline(args.name, repo_path=args.code, diagram_path=args.diagram,
-                              backend_config=cfg["reasoner"], language=args.lang)
+                              backend_config=cfg["reasoner"], language=args.lang,
+                              iac_path=args.iac, privacy=args.privacy)
     from .report.diff import write_baseline  # noqa: E402
     path = args.file or _default_baseline()
     write_baseline(threats, path)
@@ -158,7 +198,8 @@ def cmd_baseline(args):
 def cmd_gate(args):
     cfg = load_config()
     _, threats = run_pipeline(args.name, repo_path=args.code, diagram_path=args.diagram,
-                              backend_config=cfg["reasoner"], language=args.lang)
+                              backend_config=cfg["reasoner"], language=args.lang,
+                              iac_path=args.iac, privacy=args.privacy)
     from .report.diff import gate, load_baseline  # noqa: E402
     path = args.file or _default_baseline()
     baseline = load_baseline(path) if os.path.exists(path) else set()
@@ -181,7 +222,8 @@ def cmd_diff(args):
     old_threats = [Threat.from_dict(t) for t in old_data.get("threats", old_data)]
     _, new_threats = run_pipeline(args.name, repo_path=args.code,
                                   diagram_path=args.diagram,
-                                  backend_config=cfg["reasoner"], language=args.lang)
+                                  backend_config=cfg["reasoner"], language=args.lang,
+                                  iac_path=args.iac, privacy=args.privacy)
     result = diff_threats(old_threats, new_threats)
     print(result.to_markdown())
     if args.out:
@@ -200,6 +242,9 @@ def _add_input_args(sp, require=False):
     sp.add_argument("--diagram", help="path to a Mermaid diagram to analyze")
     sp.add_argument("--lang", choices=["python", "javascript"],
                     help="force a code analyzer (default: auto-detect)")
+    sp.add_argument("--iac", help="path to Terraform/Kubernetes infrastructure-as-code")
+    sp.add_argument("--privacy", action="store_true",
+                    help="also run the LINDDUN privacy threat sweep")
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -242,6 +287,15 @@ def build_parser() -> argparse.ArgumentParser:
 
     sp = sub.add_parser("reference-eval", help="Tier-2: tool vs hand-authored reference")
     sp.set_defaults(func=cmd_reference_eval)
+
+    sp = sub.add_parser("attack", help="chain threats into MITRE ATT&CK-mapped attack paths")
+    _add_input_args(sp)
+    sp.set_defaults(func=cmd_attack)
+
+    sp = sub.add_parser("verify", help="generate security tests (pytest) + detection rules (Sigma)")
+    _add_input_args(sp)
+    sp.add_argument("--out", help="output directory (default: reports/)")
+    sp.set_defaults(func=cmd_verify)
 
     sp = sub.add_parser("baseline", help="record current threats as an accepted baseline")
     _add_input_args(sp)

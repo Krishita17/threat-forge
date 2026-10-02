@@ -41,10 +41,15 @@ class ThreatPattern:
     base_likelihood: int
     base_impact: int
     mitigation: str
+    # Calibrated confidence that this pattern is a real threat when it fires.
+    # Lower for patterns that rely on a conservative "control is absent" default
+    # (heuristic) rather than positive evidence. Default is moderately high.
+    confidence: float = 0.85
 
 
 class StrideKB:
     def __init__(self, data: dict[str, Any]):
+        self.framework: str = data.get("framework", "STRIDE")
         self.categories: dict[str, str] = data["categories"]
         self.applicability: dict[str, list[str]] = data["applicability"]
         self.patterns: list[ThreatPattern] = [

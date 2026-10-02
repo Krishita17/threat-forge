@@ -56,6 +56,15 @@
                   "mitigation": "Enforce server-side, deny-by-default authorization on every privileged action; apply least privilege and verify object-level access."
                 },
                 {
+                  "id": "PRIV-007",
+                  "title": "Personal data is disclosed across a boundary",
+                  "type": "Disclosure of information",
+                  "status": "Open",
+                  "severity": "High",
+                  "description": "Sample Web App Service carries personal data (credentials, pii) across a trust boundary, exposing it to parties that may not need it.",
+                  "mitigation": "Share the minimum personal data necessary across the boundary; apply purpose limitation and a data-processing agreement for third parties."
+                },
+                {
                   "id": "TF-002",
                   "title": "Untrusted input reaches the process without validation",
                   "type": "Tampering",
@@ -90,6 +99,15 @@
                   "severity": "Medium",
                   "description": "Sample Web App Service performs security-relevant actions but does not emit tamper-resistant audit logs, so actors can deny having acted.",
                   "mitigation": "Log security-relevant events with user identity, timestamp and outcome to an append-only, access-controlled store."
+                },
+                {
+                  "id": "PRIV-001",
+                  "title": "Process may over-collect or over-expose personal data",
+                  "type": "Disclosure of information",
+                  "status": "Open",
+                  "severity": "Medium",
+                  "description": "Sample Web App Service handles personal data; without purpose limitation it can collect or expose more than necessary.",
+                  "mitigation": "Apply purpose limitation and least-privilege access to personal data; redact fields not required for the operation."
                 },
                 {
                   "id": "TF-004",
@@ -132,6 +150,15 @@
                   "severity": "High",
                   "description": "End User is an external entity whose requests are not strongly authenticated, so an attacker can impersonate it (e.g. credential stuffing, forged identity).",
                   "mitigation": "Require strong authentication for this actor (MFA where feasible), enforce password/credential policy, and rate-limit/lock out credential-stuffing attempts."
+                },
+                {
+                  "id": "PRIV-002",
+                  "title": "Data subject may be unaware of processing (no consent signal)",
+                  "type": "Unawareness",
+                  "status": "Open",
+                  "severity": "Medium",
+                  "description": "End User is a data subject whose awareness/consent for processing is not represented in the system.",
+                  "mitigation": "Provide clear processing notices and capture a lawful basis/consent; expose data-subject rights (access, erasure)."
                 }
               ],
               "hasOpenThreats": true
@@ -176,6 +203,24 @@
                   "mitigation": "Encrypt the channel end-to-end; minimize sensitive fields in transit and avoid placing them in URLs or logs."
                 },
                 {
+                  "id": "PRIV-008",
+                  "title": "Personal data is disclosed across a boundary",
+                  "type": "Disclosure of information",
+                  "status": "Open",
+                  "severity": "High",
+                  "description": "SQLite Database carries personal data (credentials, pii) across a trust boundary, exposing it to parties that may not need it.",
+                  "mitigation": "Share the minimum personal data necessary across the boundary; apply purpose limitation and a data-processing agreement for third parties."
+                },
+                {
+                  "id": "PRIV-004",
+                  "title": "Individuals are identifiable (no data minimisation/anonymisation)",
+                  "type": "Identifiability",
+                  "status": "Open",
+                  "severity": "High",
+                  "description": "SQLite Database retains directly identifying personal data without minimisation or anonymisation, increasing re-identification risk.",
+                  "mitigation": "Minimise collected fields, anonymise or aggregate where possible, and avoid storing direct identifiers you do not need."
+                },
+                {
                   "id": "TF-013",
                   "title": "Data in transit can be tampered with across a trust boundary",
                   "type": "Tampering",
@@ -183,6 +228,24 @@
                   "severity": "High",
                   "description": "SQLite Database crosses a trust boundary without transport integrity (no TLS/encryption), so an on-path attacker can modify the data.",
                   "mitigation": "Encrypt and integrity-protect the channel (TLS 1.2+); reject plaintext transport for any boundary-crossing flow."
+                },
+                {
+                  "id": "PRIV-003",
+                  "title": "Records are linkable across contexts (no pseudonymisation)",
+                  "type": "Linkability",
+                  "status": "Open",
+                  "severity": "Medium",
+                  "description": "SQLite Database stores personal data without pseudonymisation, so records about the same person can be linked across contexts.",
+                  "mitigation": "Pseudonymise or tokenise identifiers at rest; separate linkable keys from personal data and restrict re-identification."
+                },
+                {
+                  "id": "PRIV-005",
+                  "title": "No retention/governance controls on personal data (non-compliance)",
+                  "type": "Non-compliance",
+                  "status": "Open",
+                  "severity": "Medium",
+                  "description": "SQLite Database holds personal data without evidence of retention limits or access auditing, risking non-compliance with storage-limitation duties.",
+                  "mitigation": "Define and enforce retention/deletion schedules, log access to personal data, and document the lawful basis and purpose."
                 },
                 {
                   "id": "TF-009",
@@ -234,8 +297,27 @@
             "data": {
               "type": "tm.Actor",
               "name": "Third-party API",
-              "threats": [],
-              "hasOpenThreats": false
+              "threats": [
+                {
+                  "id": "PRIV-009",
+                  "title": "Personal data is disclosed across a boundary",
+                  "type": "Disclosure of information",
+                  "status": "Open",
+                  "severity": "High",
+                  "description": "Third-party API carries personal data (payment, request) across a trust boundary, exposing it to parties that may not need it.",
+                  "mitigation": "Share the minimum personal data necessary across the boundary; apply purpose limitation and a data-processing agreement for third parties."
+                },
+                {
+                  "id": "PRIV-006",
+                  "title": "Data subject may be unaware of processing (no consent signal)",
+                  "type": "Unawareness",
+                  "status": "Open",
+                  "severity": "Medium",
+                  "description": "Third-party API is a data subject whose awareness/consent for processing is not represented in the system.",
+                  "mitigation": "Provide clear processing notices and capture a lawful basis/consent; expose data-subject rights (access, erasure)."
+                }
+              ],
+              "hasOpenThreats": true
             }
           },
           {

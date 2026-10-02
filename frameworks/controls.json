@@ -29,6 +29,12 @@
     {"id": "NIST-SC-5", "framework": "NIST", "title": "Denial-of-Service Protection", "requirement": "Protect against or limit the effects of denial-of-service conditions."},
     {"id": "NIST-SC-8", "framework": "NIST", "title": "Transmission Confidentiality and Integrity", "requirement": "Protect the confidentiality and integrity of transmitted information."},
     {"id": "NIST-SC-28", "framework": "NIST", "title": "Protection of Information at Rest", "requirement": "Protect the confidentiality and integrity of information while it is stored."},
-    {"id": "NIST-SI-7", "framework": "NIST", "title": "Software, Firmware, and Information Integrity", "requirement": "Detect unauthorized changes to software, firmware and information."}
+    {"id": "NIST-SI-7", "framework": "NIST", "title": "Software, Firmware, and Information Integrity", "requirement": "Detect unauthorized changes to software, firmware and information."},
+    {"id": "NIST-PT-3", "framework": "NIST", "title": "Personally Identifiable Information Processing Purposes", "requirement": "Process PII only for the authorized, documented purposes."},
+    {"id": "NIST-SI-12", "framework": "NIST", "title": "Information Management and Retention", "requirement": "Retain information only as long as needed and dispose of it securely."},
+    {"id": "GDPR-ART5-MIN", "framework": "GDPR", "title": "Data Minimisation (Art. 5(1)(c))", "requirement": "Collect and keep only the personal data adequate and necessary for the purpose."},
+    {"id": "GDPR-ART5-STORAGE", "framework": "GDPR", "title": "Storage Limitation (Art. 5(1)(e))", "requirement": "Keep personal data in identifiable form no longer than necessary."},
+    {"id": "GDPR-ART13", "framework": "GDPR", "title": "Information to the Data Subject (Art. 13)", "requirement": "Inform data subjects about the processing of their personal data and obtain a lawful basis/consent."},
+    {"id": "GDPR-ART25", "framework": "GDPR", "title": "Data Protection by Design (Art. 25)", "requirement": "Apply pseudonymisation and data-protection measures by design and by default."}
   ]
 }

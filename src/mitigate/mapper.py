@@ -55,6 +55,20 @@ def load_owasp_top10(frameworks_dir: str | None = None) -> dict:
         return json.load(fh)
 
 
+def load_compliance(frameworks_dir: str | None = None) -> dict:
+    """Load the control -> SOC 2 / ISO 27001 / PCI DSS crosswalk."""
+    path = os.path.join(frameworks_dir or _FRAMEWORKS_DIR, "compliance.json")
+    with open(path, "r", encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def load_attack(frameworks_dir: str | None = None) -> dict:
+    """Load the STRIDE/pattern -> MITRE ATT&CK technique mapping."""
+    path = os.path.join(frameworks_dir or _FRAMEWORKS_DIR, "attack_techniques.json")
+    with open(path, "r", encoding="utf-8") as fh:
+        return json.load(fh)
+
+
 def risk_level(score: int) -> str:
     """Band a 1..25 risk score. Documented, overridable thresholds."""
     if score >= 20:
@@ -68,13 +82,39 @@ def risk_level(score: int) -> str:
 
 class MitigationMapper:
     def __init__(self, controls: dict[str, Control] | None = None,
-                 owasp: dict | None = None):
+                 owasp: dict | None = None, compliance: dict | None = None,
+                 attack: dict | None = None):
         self.controls = controls if controls is not None else load_controls()
         self.owasp = owasp if owasp is not None else load_owasp_top10()
+        self.compliance = compliance if compliance is not None else load_compliance()
+        self.attack = attack if attack is not None else load_attack()
 
     def _owasp_for(self, cwe: str) -> str:
         cat = self.owasp.get("cwe_to_category", {}).get(cwe)
         return self.owasp.get("categories", {}).get(cat, "") if cat else ""
+
+    def _compliance_for(self, controls: list[str]) -> list[str]:
+        """Map the threat's controls to compliance refs (deduped, readable)."""
+        xwalk = self.compliance.get("control_to_compliance", {})
+        out: list[str] = []
+        for cid in controls:
+            m = xwalk.get(cid)
+            if not m:
+                continue
+            for fw in ("SOC2", "ISO27001", "PCIDSS"):
+                if fw in m:
+                    ref = f"{fw}:{m[fw]}"
+                    if ref not in out:
+                        out.append(ref)
+        return out
+
+    def _attack_for(self, t: Threat) -> str:
+        by_pattern = self.attack.get("by_pattern", {})
+        by_stride = self.attack.get("by_stride", {})
+        m = by_pattern.get(t.source_pattern) or by_stride.get(t.stride)
+        if not m:
+            return ""
+        return f"{m['technique']} {m['technique_name']} ({m['tactic']})"
 
     def enrich(self, threats: list[Threat]) -> list[Threat]:
         for t in threats:
@@ -84,6 +124,13 @@ class MitigationMapper:
             # Normalize/validate control ids against the loaded frameworks.
             valid = [c for c in t.controls if c in self.controls]
             t.controls = valid
+            t.compliance = self._compliance_for(valid)
+            t.attack_technique = self._attack_for(t)
+            # A threat needs explicit human review if it is high-risk OR the
+            # pattern that produced it is low-confidence (heuristic).
+            t.needs_review = bool(
+                t.risk_level in ("High", "Critical") or t.confidence < 0.7
+            )
         # Highest risk first for a triaged register.
         threats.sort(key=lambda t: (-t.risk, t.component, t.stride))
         return threats

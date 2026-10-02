@@ -1,0 +1,83 @@
+[
+  {
+    "id": "AP-002",
+    "entry": "End User",
+    "target": "SQLite Database",
+    "total_risk": 47,
+    "confidence": 0.61,
+    "needs_review": false,
+    "narrative": "End User [S] -> Sample Web App Service [S] -> SQLite Database [I]",
+    "tactics": [
+      "Credential Access",
+      "Initial Access",
+      "Collection"
+    ],
+    "steps": [
+      {
+        "component": "End User",
+        "component_id": "end_user",
+        "threat_id": "TF-008",
+        "stride": "S",
+        "title": "Unauthenticated external actor can impersonate a legitimate user",
+        "risk": 16,
+        "attack_technique": "T1110 Brute Force",
+        "tactic": "Credential Access"
+      },
+      {
+        "component": "Sample Web App Service",
+        "component_id": "app",
+        "threat_id": "TF-001",
+        "stride": "S",
+        "title": "Process accepts requests without verifying caller identity",
+        "risk": 16,
+        "attack_technique": "T1078 Valid Accounts",
+        "tactic": "Initial Access"
+      },
+      {
+        "component": "SQLite Database",
+        "component_id": "store_11",
+        "threat_id": "TF-011",
+        "stride": "I",
+        "title": "Sensitive data at rest is not encrypted",
+        "risk": 15,
+        "attack_technique": "T1213 Data from Information Repositories",
+        "tactic": "Collection"
+      }
+    ]
+  },
+  {
+    "id": "AP-001",
+    "entry": "Sample Web App Service",
+    "target": "SQLite Database",
+    "total_risk": 31,
+    "confidence": 0.72,
+    "needs_review": false,
+    "narrative": "Sample Web App Service [S] -> SQLite Database [I]",
+    "tactics": [
+      "Initial Access",
+      "Collection"
+    ],
+    "steps": [
+      {
+        "component": "Sample Web App Service",
+        "component_id": "app",
+        "threat_id": "TF-001",
+        "stride": "S",
+        "title": "Process accepts requests without verifying caller identity",
+        "risk": 16,
+        "attack_technique": "T1078 Valid Accounts",
+        "tactic": "Initial Access"
+      },
+      {
+        "component": "SQLite Database",
+        "component_id": "store_11",
+        "threat_id": "TF-011",
+        "stride": "I",
+        "title": "Sensitive data at rest is not encrypted",
+        "risk": 15,
+        "attack_technique": "T1213 Data from Information Repositories",
+        "tactic": "Collection"
+      }
+    ]
+  }
+]

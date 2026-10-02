@@ -1,0 +1,29 @@
+{
+  "_about": "Mapping from ThreatForge STRIDE threat patterns to MITRE ATT&CK (Enterprise) tactics/techniques and CAPEC attack patterns, used to annotate attack-path steps. Technique IDs/names and CAPEC IDs are the genuine MITRE identifiers; the assignment to each pattern is the most representative technique for that threat class. This is reference data for human review, not an exhaustive mapping. Author: Krishita Sanjay Choksi.",
+  "source": "MITRE ATT&CK Enterprise v14 / MITRE CAPEC",
+  "tactic_order": [
+    "Initial Access", "Credential Access", "Execution", "Privilege Escalation",
+    "Defense Evasion", "Lateral Movement", "Collection", "Exfiltration", "Impact"
+  ],
+  "by_stride": {
+    "S": {"tactic": "Initial Access", "technique": "T1078", "technique_name": "Valid Accounts", "capec": "CAPEC-151"},
+    "T": {"tactic": "Impact", "technique": "T1565", "technique_name": "Data Manipulation", "capec": "CAPEC-137"},
+    "R": {"tactic": "Defense Evasion", "technique": "T1070", "technique_name": "Indicator Removal", "capec": "CAPEC-93"},
+    "I": {"tactic": "Collection", "technique": "T1213", "technique_name": "Data from Information Repositories", "capec": "CAPEC-118"},
+    "D": {"tactic": "Impact", "technique": "T1499", "technique_name": "Endpoint Denial of Service", "capec": "CAPEC-125"},
+    "E": {"tactic": "Privilege Escalation", "technique": "T1068", "technique_name": "Exploitation for Privilege Escalation", "capec": "CAPEC-233"}
+  },
+  "by_pattern": {
+    "S-EXT-AUTHN": {"tactic": "Credential Access", "technique": "T1110", "technique_name": "Brute Force", "capec": "CAPEC-49"},
+    "S-PROC-WEAKAUTH": {"tactic": "Initial Access", "technique": "T1078", "technique_name": "Valid Accounts", "capec": "CAPEC-151"},
+    "T-PROC-INPUT": {"tactic": "Initial Access", "technique": "T1190", "technique_name": "Exploit Public-Facing Application", "capec": "CAPEC-66"},
+    "T-FLOW-NOTLS": {"tactic": "Collection", "technique": "T1557", "technique_name": "Adversary-in-the-Middle", "capec": "CAPEC-94"},
+    "I-FLOW-PLAINTEXT": {"tactic": "Collection", "technique": "T1557", "technique_name": "Adversary-in-the-Middle", "capec": "CAPEC-157"},
+    "I-STORE-ATREST": {"tactic": "Collection", "technique": "T1213", "technique_name": "Data from Information Repositories", "capec": "CAPEC-545"},
+    "I-PROC-ERRORS": {"tactic": "Collection", "technique": "T1592", "technique_name": "Gather Victim Host Information", "capec": "CAPEC-54"},
+    "D-PROC-RATELIMIT": {"tactic": "Impact", "technique": "T1499", "technique_name": "Endpoint Denial of Service", "capec": "CAPEC-125"},
+    "E-PROC-AUTHZ": {"tactic": "Privilege Escalation", "technique": "T1068", "technique_name": "Exploitation for Privilege Escalation", "capec": "CAPEC-233"},
+    "E-PROC-ADMIN": {"tactic": "Lateral Movement", "technique": "T1210", "technique_name": "Exploitation of Remote Services", "capec": "CAPEC-122"},
+    "R-PROC-LOG": {"tactic": "Defense Evasion", "technique": "T1070", "technique_name": "Indicator Removal", "capec": "CAPEC-93"}
+  }
+}

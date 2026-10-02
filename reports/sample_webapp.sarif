@@ -155,6 +155,64 @@
               }
             },
             {
+              "id": "DD-FLOW-DISCLOSE",
+              "name": "PersonalDataIsDisclosedAcrossABoundary",
+              "shortDescription": {
+                "text": "Personal data is disclosed across a boundary"
+              },
+              "fullDescription": {
+                "text": "SQLite Database carries personal data (credentials, pii) across a trust boundary, exposing it to parties that may not need it."
+              },
+              "helpUri": "https://owasp.org/www-community/Threat_Modeling",
+              "help": {
+                "text": "**Disclosure of information** against `SQLite Database`.\n\nMitigation: Share the minimum personal data necessary across the boundary; apply purpose limitation and a data-processing agreement for third parties.\nControls: GDPR-ART5-MIN, NIST-PT-3",
+                "markdown": "**Disclosure of information** against `SQLite Database`.\n\nMitigation: Share the minimum personal data necessary across the boundary; apply purpose limitation and a data-processing agreement for third parties.\nControls: GDPR-ART5-MIN, NIST-PT-3"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "stride": "Disclosure of information",
+                "cwe": "",
+                "owaspTop10": "",
+                "security-severity": "4.8",
+                "tags": [
+                  "security",
+                  "threat-model",
+                  "stride"
+                ]
+              }
+            },
+            {
+              "id": "I-STORE-IDENT",
+              "name": "IndividualsAreIdentifiable(noDataMinimisationAnonymisation)",
+              "shortDescription": {
+                "text": "Individuals are identifiable (no data minimisation/anonymisation)"
+              },
+              "fullDescription": {
+                "text": "SQLite Database retains directly identifying personal data without minimisation or anonymisation, increasing re-identification risk."
+              },
+              "helpUri": "https://owasp.org/www-community/Threat_Modeling",
+              "help": {
+                "text": "**Identifiability** against `SQLite Database`.\n\nMitigation: Minimise collected fields, anonymise or aggregate where possible, and avoid storing direct identifiers you do not need.\nControls: GDPR-ART5-MIN, NIST-PT-3",
+                "markdown": "**Identifiability** against `SQLite Database`.\n\nMitigation: Minimise collected fields, anonymise or aggregate where possible, and avoid storing direct identifiers you do not need.\nControls: GDPR-ART5-MIN, NIST-PT-3"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "stride": "Identifiability",
+                "cwe": "",
+                "owaspTop10": "",
+                "security-severity": "4.8",
+                "tags": [
+                  "security",
+                  "threat-model",
+                  "stride"
+                ]
+              }
+            },
+            {
               "id": "T-FLOW-NOTLS",
               "name": "DataInTransitCanBeTamperedWithAcrossATrustBoundary",
               "shortDescription": {
@@ -242,6 +300,64 @@
               }
             },
             {
+              "id": "U-EXT-CONSENT",
+              "name": "DataSubjectMayBeUnawareOfProcessing(noConsentSignal)",
+              "shortDescription": {
+                "text": "Data subject may be unaware of processing (no consent signal)"
+              },
+              "fullDescription": {
+                "text": "End User is a data subject whose awareness/consent for processing is not represented in the system."
+              },
+              "helpUri": "https://owasp.org/www-community/Threat_Modeling",
+              "help": {
+                "text": "**Unawareness** against `End User`.\n\nMitigation: Provide clear processing notices and capture a lawful basis/consent; expose data-subject rights (access, erasure).\nControls: GDPR-ART13",
+                "markdown": "**Unawareness** against `End User`.\n\nMitigation: Provide clear processing notices and capture a lawful basis/consent; expose data-subject rights (access, erasure).\nControls: GDPR-ART13"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "stride": "Unawareness",
+                "cwe": "",
+                "owaspTop10": "",
+                "security-severity": "3.6",
+                "tags": [
+                  "security",
+                  "threat-model",
+                  "stride"
+                ]
+              }
+            },
+            {
+              "id": "L-STORE-LINK",
+              "name": "RecordsAreLinkableAcrossContexts(noPseudonymisation)",
+              "shortDescription": {
+                "text": "Records are linkable across contexts (no pseudonymisation)"
+              },
+              "fullDescription": {
+                "text": "SQLite Database stores personal data without pseudonymisation, so records about the same person can be linked across contexts."
+              },
+              "helpUri": "https://owasp.org/www-community/Threat_Modeling",
+              "help": {
+                "text": "**Linkability** against `SQLite Database`.\n\nMitigation: Pseudonymise or tokenise identifiers at rest; separate linkable keys from personal data and restrict re-identification.\nControls: GDPR-ART25, NIST-PT-3",
+                "markdown": "**Linkability** against `SQLite Database`.\n\nMitigation: Pseudonymise or tokenise identifiers at rest; separate linkable keys from personal data and restrict re-identification.\nControls: GDPR-ART25, NIST-PT-3"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "stride": "Linkability",
+                "cwe": "",
+                "owaspTop10": "",
+                "security-severity": "3.6",
+                "tags": [
+                  "security",
+                  "threat-model",
+                  "stride"
+                ]
+              }
+            },
+            {
               "id": "D-PROC-RATELIMIT",
               "name": "NoRateLimitingOnAnInternet-facingProcess",
               "shortDescription": {
@@ -292,6 +408,35 @@
                 "cwe": "CWE-778",
                 "owaspTop10": "A09:2021 - Security Logging and Monitoring Failures",
                 "security-severity": "3.6",
+                "tags": [
+                  "security",
+                  "threat-model",
+                  "stride"
+                ]
+              }
+            },
+            {
+              "id": "NC-STORE-RETAIN",
+              "name": "NoRetentionGovernanceControlsOnPersonalData(non-compliance)",
+              "shortDescription": {
+                "text": "No retention/governance controls on personal data (non-compliance)"
+              },
+              "fullDescription": {
+                "text": "SQLite Database holds personal data without evidence of retention limits or access auditing, risking non-compliance with storage-limitation duties."
+              },
+              "helpUri": "https://owasp.org/www-community/Threat_Modeling",
+              "help": {
+                "text": "**Non-compliance** against `SQLite Database`.\n\nMitigation: Define and enforce retention/deletion schedules, log access to personal data, and document the lawful basis and purpose.\nControls: GDPR-ART5-STORAGE, NIST-SI-12",
+                "markdown": "**Non-compliance** against `SQLite Database`.\n\nMitigation: Define and enforce retention/deletion schedules, log access to personal data, and document the lawful basis and purpose.\nControls: GDPR-ART5-STORAGE, NIST-SI-12"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "stride": "Non-compliance",
+                "cwe": "",
+                "owaspTop10": "",
+                "security-severity": "3.2",
                 "tags": [
                   "security",
                   "threat-model",
@@ -378,6 +523,35 @@
                 "stride": "Repudiation",
                 "cwe": "CWE-778",
                 "owaspTop10": "A09:2021 - Security Logging and Monitoring Failures",
+                "security-severity": "2.4",
+                "tags": [
+                  "security",
+                  "threat-model",
+                  "stride"
+                ]
+              }
+            },
+            {
+              "id": "DD-PROC-OVERCOLLECT",
+              "name": "ProcessMayOver-collectOrOver-exposePersonalData",
+              "shortDescription": {
+                "text": "Process may over-collect or over-expose personal data"
+              },
+              "fullDescription": {
+                "text": "Sample Web App Service handles personal data; without purpose limitation it can collect or expose more than necessary."
+              },
+              "helpUri": "https://owasp.org/www-community/Threat_Modeling",
+              "help": {
+                "text": "**Disclosure of information** against `Sample Web App Service`.\n\nMitigation: Apply purpose limitation and least-privilege access to personal data; redact fields not required for the operation.\nControls: GDPR-ART5-MIN, NIST-PT-3",
+                "markdown": "**Disclosure of information** against `Sample Web App Service`.\n\nMitigation: Apply purpose limitation and least-privilege access to personal data; redact fields not required for the operation.\nControls: GDPR-ART5-MIN, NIST-PT-3"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "stride": "Disclosure of information",
+                "cwe": "",
+                "owaspTop10": "",
                 "security-severity": "2.4",
                 "tags": [
                   "security",
@@ -575,6 +749,68 @@
           }
         },
         {
+          "ruleId": "DD-FLOW-DISCLOSE",
+          "level": "error",
+          "message": {
+            "text": "[PRIV-008] Personal data is disclosed across a boundary - SQLite Database (risk 12/High). SQLite Database carries personal data (credentials, pii) across a trust boundary, exposing it to parties that may not need it."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "sample_webapp_threat_model.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "SQLite Database",
+                  "kind": "component"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "threatId": "PRIV-008",
+            "boundary": "Application -> Data",
+            "likelihood": 3,
+            "impact": 4
+          }
+        },
+        {
+          "ruleId": "I-STORE-IDENT",
+          "level": "error",
+          "message": {
+            "text": "[PRIV-004] Individuals are identifiable (no data minimisation/anonymisation) - SQLite Database (risk 12/High). SQLite Database retains directly identifying personal data without minimisation or anonymisation, increasing re-identification risk."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "sample_webapp_threat_model.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "SQLite Database",
+                  "kind": "component"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "threatId": "PRIV-004",
+            "boundary": "",
+            "likelihood": 3,
+            "impact": 4
+          }
+        },
+        {
           "ruleId": "T-FLOW-NOTLS",
           "level": "error",
           "message": {
@@ -601,6 +837,37 @@
           "properties": {
             "threatId": "TF-013",
             "boundary": "Application -> Data",
+            "likelihood": 3,
+            "impact": 4
+          }
+        },
+        {
+          "ruleId": "DD-FLOW-DISCLOSE",
+          "level": "error",
+          "message": {
+            "text": "[PRIV-007] Personal data is disclosed across a boundary - Sample Web App Service (risk 12/High). Sample Web App Service carries personal data (credentials, pii) across a trust boundary, exposing it to parties that may not need it."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "sample_webapp_threat_model.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "Sample Web App Service",
+                  "kind": "component"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "threatId": "PRIV-007",
+            "boundary": "Internet -> Application",
             "likelihood": 3,
             "impact": 4
           }
@@ -637,6 +904,37 @@
           }
         },
         {
+          "ruleId": "DD-FLOW-DISCLOSE",
+          "level": "error",
+          "message": {
+            "text": "[PRIV-009] Personal data is disclosed across a boundary - Third-party API (risk 12/High). Third-party API carries personal data (payment, request) across a trust boundary, exposing it to parties that may not need it."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "sample_webapp_threat_model.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "Third-party API",
+                  "kind": "component"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "threatId": "PRIV-009",
+            "boundary": "Application -> Third-party",
+            "likelihood": 3,
+            "impact": 4
+          }
+        },
+        {
           "ruleId": "E-PROC-ADMIN",
           "level": "warning",
           "message": {
@@ -665,6 +963,68 @@
             "boundary": "Internet -> Application",
             "likelihood": 2,
             "impact": 5
+          }
+        },
+        {
+          "ruleId": "U-EXT-CONSENT",
+          "level": "warning",
+          "message": {
+            "text": "[PRIV-002] Data subject may be unaware of processing (no consent signal) - End User (risk 9/Medium). End User is a data subject whose awareness/consent for processing is not represented in the system."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "sample_webapp_threat_model.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "End User",
+                  "kind": "component"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "threatId": "PRIV-002",
+            "boundary": "",
+            "likelihood": 3,
+            "impact": 3
+          }
+        },
+        {
+          "ruleId": "L-STORE-LINK",
+          "level": "warning",
+          "message": {
+            "text": "[PRIV-003] Records are linkable across contexts (no pseudonymisation) - SQLite Database (risk 9/Medium). SQLite Database stores personal data without pseudonymisation, so records about the same person can be linked across contexts."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "sample_webapp_threat_model.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "SQLite Database",
+                  "kind": "component"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "threatId": "PRIV-003",
+            "boundary": "",
+            "likelihood": 3,
+            "impact": 3
           }
         },
         {
@@ -727,6 +1087,68 @@
             "boundary": "Internet -> Application",
             "likelihood": 3,
             "impact": 3
+          }
+        },
+        {
+          "ruleId": "U-EXT-CONSENT",
+          "level": "warning",
+          "message": {
+            "text": "[PRIV-006] Data subject may be unaware of processing (no consent signal) - Third-party API (risk 9/Medium). Third-party API is a data subject whose awareness/consent for processing is not represented in the system."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "sample_webapp_threat_model.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "Third-party API",
+                  "kind": "component"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "threatId": "PRIV-006",
+            "boundary": "",
+            "likelihood": 3,
+            "impact": 3
+          }
+        },
+        {
+          "ruleId": "NC-STORE-RETAIN",
+          "level": "warning",
+          "message": {
+            "text": "[PRIV-005] No retention/governance controls on personal data (non-compliance) - SQLite Database (risk 8/Medium). SQLite Database holds personal data without evidence of retention limits or access auditing, risking non-compliance with storage-limitation duties."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "sample_webapp_threat_model.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "SQLite Database",
+                  "kind": "component"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "threatId": "PRIV-005",
+            "boundary": "",
+            "likelihood": 2,
+            "impact": 4
           }
         },
         {
@@ -818,6 +1240,37 @@
           "properties": {
             "threatId": "TF-010",
             "boundary": "",
+            "likelihood": 2,
+            "impact": 3
+          }
+        },
+        {
+          "ruleId": "DD-PROC-OVERCOLLECT",
+          "level": "warning",
+          "message": {
+            "text": "[PRIV-001] Process may over-collect or over-expose personal data - Sample Web App Service (risk 6/Medium). Sample Web App Service handles personal data; without purpose limitation it can collect or expose more than necessary."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "sample_webapp_threat_model.md"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "Sample Web App Service",
+                  "kind": "component"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "threatId": "PRIV-001",
+            "boundary": "Internet -> Application",
             "likelihood": 2,
             "impact": 3
           }

@@ -65,20 +65,30 @@ _ROUTE_DECORATORS = {"route", "get", "post", "put", "delete", "patch", "endpoint
 
 
 class _Visitor(ast.NodeVisitor):
-    def __init__(self):
+    def __init__(self, relpath: str = ""):
+        self.relpath = relpath
         self.imports: set[str] = set()
         self.names: set[str] = set()         # all identifier/attr names used
         self.decorators: set[str] = set()
         self.has_routes = False
+        self.import_locs: dict[str, str] = {}   # module -> "file:line"
+        self.route_loc: str = ""                 # "file:line" of first route
+
+    def _loc(self, node) -> str:
+        return f"{self.relpath}:{getattr(node, 'lineno', 0)}"
 
     def visit_Import(self, node: ast.Import):
         for alias in node.names:
-            self.imports.add(alias.name.split(".")[0])
+            mod = alias.name.split(".")[0]
+            self.imports.add(mod)
+            self.import_locs.setdefault(mod, self._loc(node))
         self.generic_visit(node)
 
     def visit_ImportFrom(self, node: ast.ImportFrom):
         if node.module:
-            self.imports.add(node.module.split(".")[0])
+            mod = node.module.split(".")[0]
+            self.imports.add(mod)
+            self.import_locs.setdefault(mod, self._loc(node))
         for alias in node.names:
             self.names.add(alias.name)
         self.generic_visit(node)
@@ -99,6 +109,8 @@ class _Visitor(ast.NodeVisitor):
                 last = name.split(".")[-1]
                 if last in _ROUTE_DECORATORS:
                     self.has_routes = True
+                    if not self.route_loc:
+                        self.route_loc = self._loc(dec)
 
     def visit_FunctionDef(self, node: ast.FunctionDef):
         self._record_decorators(node)
@@ -147,12 +159,16 @@ def analyze_python_repo(repo_path: str, name: str | None = None) -> SystemModel:
             except (SyntaxError, UnicodeDecodeError):
                 continue
             file_count += 1
-            v = _Visitor()
+            v = _Visitor(relpath=os.path.relpath(path, repo_path))
             v.visit(tree)
             agg.imports |= v.imports
             agg.names |= v.names
             agg.decorators |= v.decorators
             agg.has_routes = agg.has_routes or v.has_routes
+            for mod, loc in v.import_locs.items():
+                agg.import_locs.setdefault(mod, loc)
+            if v.route_loc and not agg.route_loc:
+                agg.route_loc = v.route_loc
 
     model = SystemModel(name=app_name)
     model.metadata["input"] = "code"
@@ -178,7 +194,7 @@ def analyze_python_repo(repo_path: str, name: str | None = None) -> SystemModel:
             "audit_logging": _has_marker(tokens, _LOGGING_MARKERS),
             "handles_sensitive": True,
         },
-        source=f"code:{app_name}",
+        source=agg.route_loc or (agg.import_locs.get(framework) if framework else "") or f"code:{app_name}",
     )
     model.add_element(app_proc)
 
@@ -223,7 +239,7 @@ def analyze_python_repo(repo_path: str, name: str | None = None) -> SystemModel:
                 "data": ["credentials", "pii"],
                 "technology": lib,
             },
-            source=f"code:import {lib}",
+            source=agg.import_locs.get(lib, f"code:import {lib}"),
         )
         model.add_element(ds)
         model.add_flow(

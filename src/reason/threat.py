@@ -27,6 +27,16 @@ class Threat:
     risk_level: str = ""    # Low / Medium / High / Critical
     boundary: str = ""      # name of the trust boundary involved, if any
     source_pattern: str = ""  # KB pattern id or "llm" for ungrounded baseline
+    framework: str = "STRIDE"  # STRIDE or LINDDUN (privacy)
+    # Traceability: where in the recovered model/code this threat was grounded.
+    evidence: str = ""
+    # Calibrated confidence in [0,1] and an explicit human-review flag.
+    confidence: float = 1.0
+    needs_review: bool = False
+    # Compliance crosswalk: control frameworks the mitigation supports.
+    compliance: list[str] = field(default_factory=list)
+    # MITRE ATT&CK technique this threat corresponds to (id + name).
+    attack_technique: str = ""
     # Human-in-the-loop review state: accepted / edited / rejected / proposed.
     review_status: str = "proposed"
 

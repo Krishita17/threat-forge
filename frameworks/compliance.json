@@ -1,0 +1,34 @@
+{
+  "_about": "Crosswalk from the control IDs ThreatForge maps threats to (ASVS/NIST) over to common compliance frameworks: SOC 2 (Trust Services Criteria), ISO/IEC 27001:2022 Annex A, and PCI DSS v4.0. Framework names and reference ids are the genuine published identifiers; the crosswalk is an informative best-fit mapping for the GRC audience, not an audit assertion. Author: Krishita Sanjay Choksi.",
+  "frameworks": {
+    "SOC2": "SOC 2 Trust Services Criteria (2017)",
+    "ISO27001": "ISO/IEC 27001:2022 Annex A",
+    "PCIDSS": "PCI DSS v4.0"
+  },
+  "control_to_compliance": {
+    "ASVS-2.1.1": {"SOC2": "CC6.1", "ISO27001": "A.5.17", "PCIDSS": "8.3"},
+    "ASVS-2.1.1-MFA": {"SOC2": "CC6.1", "ISO27001": "A.8.5", "PCIDSS": "8.4"},
+    "ASVS-4.1.1": {"SOC2": "CC6.3", "ISO27001": "A.5.15", "PCIDSS": "7.2"},
+    "ASVS-4.1.3": {"SOC2": "CC6.3", "ISO27001": "A.8.2", "PCIDSS": "7.2"},
+    "ASVS-5.1.3": {"SOC2": "CC7.1", "ISO27001": "A.8.28", "PCIDSS": "6.2.4"},
+    "ASVS-5.3.4": {"SOC2": "CC7.1", "ISO27001": "A.8.28", "PCIDSS": "6.2.4"},
+    "ASVS-7.1.3": {"SOC2": "CC7.2", "ISO27001": "A.8.15", "PCIDSS": "10.2"},
+    "ASVS-7.4.1": {"SOC2": "CC7.2", "ISO27001": "A.8.28", "PCIDSS": "6.2.4"},
+    "ASVS-8.3.1": {"SOC2": "CC6.7", "ISO27001": "A.8.24", "PCIDSS": "3.4"},
+    "ASVS-8.3.4": {"SOC2": "CC6.7", "ISO27001": "A.8.24", "PCIDSS": "3.5"},
+    "ASVS-9.1.1": {"SOC2": "CC6.7", "ISO27001": "A.8.24", "PCIDSS": "4.2"},
+    "ASVS-11.1.4": {"SOC2": "A1.1", "ISO27001": "A.8.6", "PCIDSS": "6.4.2"},
+    "ASVS-1.9.2": {"SOC2": "CC6.1", "ISO27001": "A.8.24", "PCIDSS": "4.2"},
+    "ASVS-14.3.2": {"SOC2": "CC7.1", "ISO27001": "A.8.9", "PCIDSS": "6.3"},
+    "NIST-IA-2": {"SOC2": "CC6.1", "ISO27001": "A.5.16", "PCIDSS": "8.2"},
+    "NIST-IA-5": {"SOC2": "CC6.1", "ISO27001": "A.5.17", "PCIDSS": "8.3"},
+    "NIST-AC-3": {"SOC2": "CC6.3", "ISO27001": "A.5.15", "PCIDSS": "7.2"},
+    "NIST-AC-6": {"SOC2": "CC6.3", "ISO27001": "A.8.2", "PCIDSS": "7.2"},
+    "NIST-AU-2": {"SOC2": "CC7.2", "ISO27001": "A.8.15", "PCIDSS": "10.2"},
+    "NIST-AU-9": {"SOC2": "CC7.2", "ISO27001": "A.8.15", "PCIDSS": "10.5"},
+    "NIST-SC-5": {"SOC2": "A1.1", "ISO27001": "A.8.6", "PCIDSS": "6.4.2"},
+    "NIST-SC-8": {"SOC2": "CC6.7", "ISO27001": "A.8.24", "PCIDSS": "4.2"},
+    "NIST-SC-28": {"SOC2": "CC6.7", "ISO27001": "A.8.24", "PCIDSS": "3.5"},
+    "NIST-SI-7": {"SOC2": "CC7.1", "ISO27001": "A.8.9", "PCIDSS": "11.5"}
+  }
+}

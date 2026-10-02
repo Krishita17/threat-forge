@@ -30,9 +30,11 @@ from .threat import Threat
 
 
 class GroundedReasoner:
-    def __init__(self, kb: StrideKB, backend: ReasonerBackend | None = None):
+    def __init__(self, kb: StrideKB, backend: ReasonerBackend | None = None,
+                 id_prefix: str = "TF"):
         self.kb = kb
         self.backend = backend or StubBackend()
+        self.id_prefix = id_prefix
 
     # -- helpers -------------------------------------------------------------
     def _boundary_for_flow(self, model: SystemModel, fl: DataFlow) -> str:
@@ -129,8 +131,11 @@ class GroundedReasoner:
         boundary = self._boundary_for_flow(model, fl) if fl is not None else ""
         if not boundary and el.attributes.get("internet_facing"):
             boundary = "Internet -> Application"
+        # Confidence combines the pattern's calibrated confidence with the
+        # backend's judgment confidence; needs_review is set below by the mapper.
+        confidence = round(pattern.confidence * getattr(judgment, "confidence", 1.0), 2)
         return Threat(
-            id=f"TF-{n:03d}",
+            id=f"{self.id_prefix}-{n:03d}",
             component=el.name,
             component_id=el.id,
             stride=pattern.category,
@@ -144,6 +149,9 @@ class GroundedReasoner:
             impact=pattern.base_impact,
             boundary=boundary,
             source_pattern=pattern.id,
+            framework=getattr(self.kb, "framework", "STRIDE"),
+            evidence=el.source or (fl.id if fl is not None else ""),
+            confidence=confidence,
         )
 
 

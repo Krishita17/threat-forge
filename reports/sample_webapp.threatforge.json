@@ -25,7 +25,7 @@
           "audit_logging": false,
           "handles_sensitive": true
         },
-        "source": "code:Sample Web App; diagram:app"
+        "source": "app/server.py:24; diagram:app"
       },
       {
         "id": "end_user",
@@ -53,7 +53,7 @@
           ],
           "technology": "sqlite3"
         },
-        "source": "code:import sqlite3; diagram:store_6"
+        "source": "app/server.py:11; diagram:store_6"
       },
       {
         "id": "third_party",
@@ -163,6 +163,18 @@
       "risk_level": "High",
       "boundary": "",
       "source_pattern": "S-EXT-AUTHN",
+      "framework": "STRIDE",
+      "evidence": "code:routes; diagram:end_user",
+      "confidence": 0.85,
+      "needs_review": true,
+      "compliance": [
+        "SOC2:CC6.1",
+        "ISO27001:A.5.17",
+        "PCIDSS:8.3",
+        "ISO27001:A.5.16",
+        "PCIDSS:8.2"
+      ],
+      "attack_technique": "T1110 Brute Force (Credential Access)",
       "review_status": "proposed"
     },
     {
@@ -186,6 +198,18 @@
       "risk_level": "High",
       "boundary": "Internet -> Application",
       "source_pattern": "S-PROC-WEAKAUTH",
+      "framework": "STRIDE",
+      "evidence": "app/server.py:24; diagram:app",
+      "confidence": 0.85,
+      "needs_review": true,
+      "compliance": [
+        "SOC2:CC6.1",
+        "ISO27001:A.5.17",
+        "PCIDSS:8.3",
+        "ISO27001:A.5.16",
+        "PCIDSS:8.2"
+      ],
+      "attack_technique": "T1078 Valid Accounts (Initial Access)",
       "review_status": "proposed"
     },
     {
@@ -209,6 +233,16 @@
       "risk_level": "High",
       "boundary": "",
       "source_pattern": "I-STORE-ATREST",
+      "framework": "STRIDE",
+      "evidence": "app/server.py:11; diagram:store_6",
+      "confidence": 0.85,
+      "needs_review": true,
+      "compliance": [
+        "SOC2:CC6.7",
+        "ISO27001:A.8.24",
+        "PCIDSS:3.5"
+      ],
+      "attack_technique": "T1213 Data from Information Repositories (Collection)",
       "review_status": "proposed"
     },
     {
@@ -233,6 +267,17 @@
       "risk_level": "High",
       "boundary": "Application -> Data",
       "source_pattern": "I-FLOW-PLAINTEXT",
+      "framework": "STRIDE",
+      "evidence": "app/server.py:11; diagram:store_6",
+      "confidence": 0.85,
+      "needs_review": true,
+      "compliance": [
+        "SOC2:CC6.7",
+        "ISO27001:A.8.24",
+        "PCIDSS:4.2",
+        "PCIDSS:3.4"
+      ],
+      "attack_technique": "T1557 Adversary-in-the-Middle (Collection)",
       "review_status": "proposed"
     },
     {
@@ -258,6 +303,75 @@
       "risk_level": "High",
       "boundary": "Internet -> Application",
       "source_pattern": "E-PROC-AUTHZ",
+      "framework": "STRIDE",
+      "evidence": "app/server.py:24; diagram:app",
+      "confidence": 0.85,
+      "needs_review": true,
+      "compliance": [
+        "SOC2:CC6.3",
+        "ISO27001:A.5.15",
+        "PCIDSS:7.2",
+        "ISO27001:A.8.2"
+      ],
+      "attack_technique": "T1068 Exploitation for Privilege Escalation (Privilege Escalation)",
+      "review_status": "proposed"
+    },
+    {
+      "id": "PRIV-008",
+      "component": "SQLite Database",
+      "component_id": "store_11",
+      "stride": "DD",
+      "stride_name": "Disclosure of information",
+      "title": "Personal data is disclosed across a boundary",
+      "rationale": "SQLite Database carries personal data (credentials, pii) across a trust boundary, exposing it to parties that may not need it.",
+      "mitigation": "Share the minimum personal data necessary across the boundary; apply purpose limitation and a data-processing agreement for third parties.",
+      "controls": [
+        "GDPR-ART5-MIN",
+        "NIST-PT-3"
+      ],
+      "cwe": "",
+      "owasp_top10": "",
+      "likelihood": 3,
+      "impact": 4,
+      "risk": 12,
+      "risk_level": "High",
+      "boundary": "Application -> Data",
+      "source_pattern": "DD-FLOW-DISCLOSE",
+      "framework": "LINDDUN",
+      "evidence": "app/server.py:11; diagram:store_6",
+      "confidence": 0.7,
+      "needs_review": true,
+      "compliance": [],
+      "attack_technique": "",
+      "review_status": "proposed"
+    },
+    {
+      "id": "PRIV-004",
+      "component": "SQLite Database",
+      "component_id": "store_11",
+      "stride": "I",
+      "stride_name": "Identifiability",
+      "title": "Individuals are identifiable (no data minimisation/anonymisation)",
+      "rationale": "SQLite Database retains directly identifying personal data without minimisation or anonymisation, increasing re-identification risk.",
+      "mitigation": "Minimise collected fields, anonymise or aggregate where possible, and avoid storing direct identifiers you do not need.",
+      "controls": [
+        "GDPR-ART5-MIN",
+        "NIST-PT-3"
+      ],
+      "cwe": "",
+      "owasp_top10": "",
+      "likelihood": 3,
+      "impact": 4,
+      "risk": 12,
+      "risk_level": "High",
+      "boundary": "",
+      "source_pattern": "I-STORE-IDENT",
+      "framework": "LINDDUN",
+      "evidence": "app/server.py:11; diagram:store_6",
+      "confidence": 0.6,
+      "needs_review": true,
+      "compliance": [],
+      "attack_technique": "T1213 Data from Information Repositories (Collection)",
       "review_status": "proposed"
     },
     {
@@ -281,6 +395,45 @@
       "risk_level": "High",
       "boundary": "Application -> Data",
       "source_pattern": "T-FLOW-NOTLS",
+      "framework": "STRIDE",
+      "evidence": "app/server.py:11; diagram:store_6",
+      "confidence": 0.85,
+      "needs_review": true,
+      "compliance": [
+        "SOC2:CC6.7",
+        "ISO27001:A.8.24",
+        "PCIDSS:4.2"
+      ],
+      "attack_technique": "T1557 Adversary-in-the-Middle (Collection)",
+      "review_status": "proposed"
+    },
+    {
+      "id": "PRIV-007",
+      "component": "Sample Web App Service",
+      "component_id": "app",
+      "stride": "DD",
+      "stride_name": "Disclosure of information",
+      "title": "Personal data is disclosed across a boundary",
+      "rationale": "Sample Web App Service carries personal data (credentials, pii) across a trust boundary, exposing it to parties that may not need it.",
+      "mitigation": "Share the minimum personal data necessary across the boundary; apply purpose limitation and a data-processing agreement for third parties.",
+      "controls": [
+        "GDPR-ART5-MIN",
+        "NIST-PT-3"
+      ],
+      "cwe": "",
+      "owasp_top10": "",
+      "likelihood": 3,
+      "impact": 4,
+      "risk": 12,
+      "risk_level": "High",
+      "boundary": "Internet -> Application",
+      "source_pattern": "DD-FLOW-DISCLOSE",
+      "framework": "LINDDUN",
+      "evidence": "app/server.py:24; diagram:app",
+      "confidence": 0.7,
+      "needs_review": true,
+      "compliance": [],
+      "attack_technique": "",
       "review_status": "proposed"
     },
     {
@@ -304,6 +457,45 @@
       "risk_level": "High",
       "boundary": "Internet -> Application",
       "source_pattern": "T-PROC-INPUT",
+      "framework": "STRIDE",
+      "evidence": "app/server.py:24; diagram:app",
+      "confidence": 0.85,
+      "needs_review": true,
+      "compliance": [
+        "SOC2:CC7.1",
+        "ISO27001:A.8.28",
+        "PCIDSS:6.2.4"
+      ],
+      "attack_technique": "T1190 Exploit Public-Facing Application (Initial Access)",
+      "review_status": "proposed"
+    },
+    {
+      "id": "PRIV-009",
+      "component": "Third-party API",
+      "component_id": "third_party",
+      "stride": "DD",
+      "stride_name": "Disclosure of information",
+      "title": "Personal data is disclosed across a boundary",
+      "rationale": "Third-party API carries personal data (payment, request) across a trust boundary, exposing it to parties that may not need it.",
+      "mitigation": "Share the minimum personal data necessary across the boundary; apply purpose limitation and a data-processing agreement for third parties.",
+      "controls": [
+        "GDPR-ART5-MIN",
+        "NIST-PT-3"
+      ],
+      "cwe": "",
+      "owasp_top10": "",
+      "likelihood": 3,
+      "impact": 4,
+      "risk": 12,
+      "risk_level": "High",
+      "boundary": "Application -> Third-party",
+      "source_pattern": "DD-FLOW-DISCLOSE",
+      "framework": "LINDDUN",
+      "evidence": "code:http client",
+      "confidence": 0.7,
+      "needs_review": true,
+      "compliance": [],
+      "attack_technique": "",
       "review_status": "proposed"
     },
     {
@@ -327,6 +519,74 @@
       "risk_level": "Medium",
       "boundary": "Internet -> Application",
       "source_pattern": "E-PROC-ADMIN",
+      "framework": "STRIDE",
+      "evidence": "app/server.py:24; diagram:app",
+      "confidence": 0.85,
+      "needs_review": false,
+      "compliance": [
+        "SOC2:CC6.3",
+        "ISO27001:A.5.15",
+        "PCIDSS:7.2",
+        "ISO27001:A.8.2"
+      ],
+      "attack_technique": "T1210 Exploitation of Remote Services (Lateral Movement)",
+      "review_status": "proposed"
+    },
+    {
+      "id": "PRIV-002",
+      "component": "End User",
+      "component_id": "end_user",
+      "stride": "U",
+      "stride_name": "Unawareness",
+      "title": "Data subject may be unaware of processing (no consent signal)",
+      "rationale": "End User is a data subject whose awareness/consent for processing is not represented in the system.",
+      "mitigation": "Provide clear processing notices and capture a lawful basis/consent; expose data-subject rights (access, erasure).",
+      "controls": [
+        "GDPR-ART13"
+      ],
+      "cwe": "",
+      "owasp_top10": "",
+      "likelihood": 3,
+      "impact": 3,
+      "risk": 9,
+      "risk_level": "Medium",
+      "boundary": "",
+      "source_pattern": "U-EXT-CONSENT",
+      "framework": "LINDDUN",
+      "evidence": "code:routes; diagram:end_user",
+      "confidence": 0.5,
+      "needs_review": true,
+      "compliance": [],
+      "attack_technique": "",
+      "review_status": "proposed"
+    },
+    {
+      "id": "PRIV-003",
+      "component": "SQLite Database",
+      "component_id": "store_11",
+      "stride": "L",
+      "stride_name": "Linkability",
+      "title": "Records are linkable across contexts (no pseudonymisation)",
+      "rationale": "SQLite Database stores personal data without pseudonymisation, so records about the same person can be linked across contexts.",
+      "mitigation": "Pseudonymise or tokenise identifiers at rest; separate linkable keys from personal data and restrict re-identification.",
+      "controls": [
+        "GDPR-ART25",
+        "NIST-PT-3"
+      ],
+      "cwe": "",
+      "owasp_top10": "",
+      "likelihood": 3,
+      "impact": 3,
+      "risk": 9,
+      "risk_level": "Medium",
+      "boundary": "",
+      "source_pattern": "L-STORE-LINK",
+      "framework": "LINDDUN",
+      "evidence": "app/server.py:11; diagram:store_6",
+      "confidence": 0.6,
+      "needs_review": true,
+      "compliance": [],
+      "attack_technique": "",
       "review_status": "proposed"
     },
     {
@@ -350,6 +610,16 @@
       "risk_level": "Medium",
       "boundary": "Internet -> Application",
       "source_pattern": "D-PROC-RATELIMIT",
+      "framework": "STRIDE",
+      "evidence": "app/server.py:24; diagram:app",
+      "confidence": 0.85,
+      "needs_review": false,
+      "compliance": [
+        "SOC2:A1.1",
+        "ISO27001:A.8.6",
+        "PCIDSS:6.4.2"
+      ],
+      "attack_technique": "T1499 Endpoint Denial of Service (Impact)",
       "review_status": "proposed"
     },
     {
@@ -374,6 +644,74 @@
       "risk_level": "Medium",
       "boundary": "Internet -> Application",
       "source_pattern": "R-PROC-LOG",
+      "framework": "STRIDE",
+      "evidence": "app/server.py:24; diagram:app",
+      "confidence": 0.85,
+      "needs_review": false,
+      "compliance": [
+        "SOC2:CC7.2",
+        "ISO27001:A.8.15",
+        "PCIDSS:10.2",
+        "PCIDSS:10.5"
+      ],
+      "attack_technique": "T1070 Indicator Removal (Defense Evasion)",
+      "review_status": "proposed"
+    },
+    {
+      "id": "PRIV-006",
+      "component": "Third-party API",
+      "component_id": "third_party",
+      "stride": "U",
+      "stride_name": "Unawareness",
+      "title": "Data subject may be unaware of processing (no consent signal)",
+      "rationale": "Third-party API is a data subject whose awareness/consent for processing is not represented in the system.",
+      "mitigation": "Provide clear processing notices and capture a lawful basis/consent; expose data-subject rights (access, erasure).",
+      "controls": [
+        "GDPR-ART13"
+      ],
+      "cwe": "",
+      "owasp_top10": "",
+      "likelihood": 3,
+      "impact": 3,
+      "risk": 9,
+      "risk_level": "Medium",
+      "boundary": "",
+      "source_pattern": "U-EXT-CONSENT",
+      "framework": "LINDDUN",
+      "evidence": "code:http client",
+      "confidence": 0.5,
+      "needs_review": true,
+      "compliance": [],
+      "attack_technique": "",
+      "review_status": "proposed"
+    },
+    {
+      "id": "PRIV-005",
+      "component": "SQLite Database",
+      "component_id": "store_11",
+      "stride": "NC",
+      "stride_name": "Non-compliance",
+      "title": "No retention/governance controls on personal data (non-compliance)",
+      "rationale": "SQLite Database holds personal data without evidence of retention limits or access auditing, risking non-compliance with storage-limitation duties.",
+      "mitigation": "Define and enforce retention/deletion schedules, log access to personal data, and document the lawful basis and purpose.",
+      "controls": [
+        "GDPR-ART5-STORAGE",
+        "NIST-SI-12"
+      ],
+      "cwe": "",
+      "owasp_top10": "",
+      "likelihood": 2,
+      "impact": 4,
+      "risk": 8,
+      "risk_level": "Medium",
+      "boundary": "",
+      "source_pattern": "NC-STORE-RETAIN",
+      "framework": "LINDDUN",
+      "evidence": "app/server.py:11; diagram:store_6",
+      "confidence": 0.55,
+      "needs_review": true,
+      "compliance": [],
+      "attack_technique": "",
       "review_status": "proposed"
     },
     {
@@ -397,6 +735,19 @@
       "risk_level": "Medium",
       "boundary": "",
       "source_pattern": "T-STORE-INTEGRITY",
+      "framework": "STRIDE",
+      "evidence": "app/server.py:11; diagram:store_6",
+      "confidence": 0.85,
+      "needs_review": false,
+      "compliance": [
+        "SOC2:CC6.1",
+        "ISO27001:A.8.24",
+        "PCIDSS:4.2",
+        "SOC2:CC7.1",
+        "ISO27001:A.8.9",
+        "PCIDSS:11.5"
+      ],
+      "attack_technique": "T1565 Data Manipulation (Impact)",
       "review_status": "proposed"
     },
     {
@@ -419,6 +770,16 @@
       "risk_level": "Medium",
       "boundary": "",
       "source_pattern": "D-STORE-EXHAUST",
+      "framework": "STRIDE",
+      "evidence": "app/server.py:11; diagram:store_6",
+      "confidence": 0.55,
+      "needs_review": true,
+      "compliance": [
+        "SOC2:A1.1",
+        "ISO27001:A.8.6",
+        "PCIDSS:6.4.2"
+      ],
+      "attack_technique": "T1499 Endpoint Denial of Service (Impact)",
       "review_status": "proposed"
     },
     {
@@ -442,6 +803,45 @@
       "risk_level": "Medium",
       "boundary": "",
       "source_pattern": "R-STORE-LOG",
+      "framework": "STRIDE",
+      "evidence": "app/server.py:11; diagram:store_6",
+      "confidence": 0.85,
+      "needs_review": false,
+      "compliance": [
+        "SOC2:CC7.2",
+        "ISO27001:A.8.15",
+        "PCIDSS:10.2"
+      ],
+      "attack_technique": "T1070 Indicator Removal (Defense Evasion)",
+      "review_status": "proposed"
+    },
+    {
+      "id": "PRIV-001",
+      "component": "Sample Web App Service",
+      "component_id": "app",
+      "stride": "DD",
+      "stride_name": "Disclosure of information",
+      "title": "Process may over-collect or over-expose personal data",
+      "rationale": "Sample Web App Service handles personal data; without purpose limitation it can collect or expose more than necessary.",
+      "mitigation": "Apply purpose limitation and least-privilege access to personal data; redact fields not required for the operation.",
+      "controls": [
+        "GDPR-ART5-MIN",
+        "NIST-PT-3"
+      ],
+      "cwe": "",
+      "owasp_top10": "",
+      "likelihood": 2,
+      "impact": 3,
+      "risk": 6,
+      "risk_level": "Medium",
+      "boundary": "Internet -> Application",
+      "source_pattern": "DD-PROC-OVERCOLLECT",
+      "framework": "LINDDUN",
+      "evidence": "app/server.py:24; diagram:app",
+      "confidence": 0.55,
+      "needs_review": true,
+      "compliance": [],
+      "attack_technique": "",
       "review_status": "proposed"
     },
     {
@@ -465,6 +865,19 @@
       "risk_level": "Medium",
       "boundary": "Internet -> Application",
       "source_pattern": "I-PROC-ERRORS",
+      "framework": "STRIDE",
+      "evidence": "app/server.py:24; diagram:app",
+      "confidence": 0.5,
+      "needs_review": true,
+      "compliance": [
+        "SOC2:CC7.2",
+        "ISO27001:A.8.28",
+        "PCIDSS:6.2.4",
+        "SOC2:CC7.1",
+        "ISO27001:A.8.9",
+        "PCIDSS:6.3"
+      ],
+      "attack_technique": "T1592 Gather Victim Host Information (Collection)",
       "review_status": "proposed"
     }
   ]

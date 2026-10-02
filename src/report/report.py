@@ -109,15 +109,42 @@ def generate_report(
     lines.append("")
     reg_rows = []
     for t in threats:
+        cat = _STRIDE_FULL.get(t.stride, t.stride) if t.framework == "STRIDE" else t.stride_name
         reg_rows.append([
-            t.id, t.component, _STRIDE_FULL.get(t.stride, t.stride), t.title,
-            t.boundary or "-", f"{t.risk} ({t.risk_level})", t.review_status,
+            t.id, t.component, cat, t.title,
+            t.boundary or "-", f"{t.risk} ({t.risk_level})",
+            f"{t.confidence:.2f}", "yes" if t.needs_review else "no",
         ])
     lines.append(_md_table(
-        ["ID", "Component", "STRIDE", "Threat", "Boundary", "Risk", "Review"],
+        ["ID", "Component", "Category", "Threat", "Boundary", "Risk", "Conf.", "Review?"],
         reg_rows,
     ))
     lines.append("")
+    lines.append("_`Conf.` is calibrated confidence; `Review? = yes` flags threats a "
+                 "human must confirm (high-risk or low-confidence)._")
+    lines.append("")
+
+    # Attack paths.
+    from ..pipeline import build_attack_paths  # local import to avoid cycle
+    paths = build_attack_paths(model, threats)
+    if paths:
+        lines.append("## Attack Paths (chained, with MITRE ATT&CK)")
+        lines.append("")
+        lines.append("Multi-step paths an attacker could follow along the data-flow "
+                     "graph, each step mapped to a MITRE ATT&CK technique. Grounded: "
+                     "every hop carries a real threat from the register.")
+        lines.append("")
+        for p in paths:
+            flag = " _(needs review - low confidence)_" if p.needs_review else ""
+            lines.append(f"### {p.id}: {p.entry} → {p.target} "
+                         f"(risk {p.total_risk}, confidence {p.confidence:.2f}){flag}")
+            lines.append("")
+            lines.append("| # | Component | STRIDE | Threat | ATT&CK technique | Tactic |")
+            lines.append("| --- | --- | --- | --- | --- | --- |")
+            for i, s in enumerate(p.steps, 1):
+                lines.append(f"| {i} | {s.component} | {_STRIDE_FULL.get(s.stride, s.stride)} "
+                             f"| {s.title} | {s.attack_technique or '-'} | {s.tactic or '-'} |")
+            lines.append("")
 
     # Mitigation table.
     lines.append("## Mitigations and Mapped Controls")
@@ -133,12 +160,14 @@ def generate_report(
             t.title,
             ", ".join(control_titles) or "-",
             t.cwe or "-",
-            t.owasp_top10 or "-",
+            t.owasp_top10.split(" - ")[0] if t.owasp_top10 else "-",
+            ", ".join(t.compliance) or "-",
             t.mitigation,
             t.risk_level,
         ])
     lines.append(_md_table(
-        ["ID", "Threat", "Mapped controls", "CWE", "OWASP Top 10", "Recommended fix", "Priority"],
+        ["ID", "Threat", "Mapped controls", "CWE", "OWASP", "Compliance (SOC2/ISO/PCI)",
+         "Recommended fix", "Priority"],
         mit_rows,
     ))
     lines.append("")
@@ -206,5 +235,26 @@ def generate_report(
     with open(badge_path, "w", encoding="utf-8") as fh:
         fh.write(exports.to_shields_badge(threats))
     paths["badge"] = badge_path
+
+    # Attack-path graph (grounded, ATT&CK-mapped).
+    import json as _json
+
+    from ..pipeline import build_attack_paths
+    ap = build_attack_paths(model, threats)
+    ap_path = os.path.join(out_dir, f"{slug}_attack_paths.json")
+    with open(ap_path, "w", encoding="utf-8") as fh:
+        _json.dump([p.to_dict() for p in ap], fh, indent=2)
+    paths["attack_paths"] = ap_path
+
+    # Threat -> verification: pytest security tests + Sigma detection rules.
+    from ..verify.generate import generate_pytest, generate_sigma_yaml
+    tests_path = os.path.join(out_dir, f"test_{slug}_security.py")
+    with open(tests_path, "w", encoding="utf-8") as fh:
+        fh.write(generate_pytest(threats))
+    paths["pytest"] = tests_path
+    sigma_path = os.path.join(out_dir, f"{slug}.sigma.yml")
+    with open(sigma_path, "w", encoding="utf-8") as fh:
+        fh.write(generate_sigma_yaml(threats))
+    paths["sigma"] = sigma_path
 
     return paths
